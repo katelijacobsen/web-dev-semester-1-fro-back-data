@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    {% include '_header.html'%}
+    <h1>Sign up</h1>
+    <form action="" method="post" id="signup">
+      <label for="firstname">
+        Firstname
+        <input type="text" name="firstname" id="firstname" />
+      </label>
+      <label for="last_name">
+        Lastname
+        <input type="text" name="last_name" id="last_name" />
+      </label>
+      <label for="country">
+        Country
+        <input type="text" name="country" id="country" />
+      </label>
+      <label for="email">
+        Email
+        <input type="email" name="email" id="email" />
+      </label>
+      <label for="number">
+        Phonenumber
+        <input type="number" name="number" id="number" />
+      </label>
+      <button>Sign up</button>
+    </form>
+  </body>
+</html>
