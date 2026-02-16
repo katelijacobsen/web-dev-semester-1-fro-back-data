@@ -6,9 +6,9 @@ def db():
             host = "mariadb",
             user = "root",
             password = "password",
-            database = "web-dev-semester-1-fro-back-data"
+            database = "sign-up"
         )
-        cursor = db.cursor(disctionary=True)
+        cursor = db.cursor(dictionary=True)
         return db, cursor
     except Exception as e:
         print(e, flush=True)

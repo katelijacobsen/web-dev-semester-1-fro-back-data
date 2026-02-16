@@ -1,35 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}" />
     <title>Document</title>
-</head>
-<body>
+  </head>
+  <body>
     {% include '_header.html' %}
-<h1>Login</h1>
-        <form action="" method="post" id="signup">
-      <label for="firstname">
-        Firstname
-        <input type="text" name="firstname" id="firstname" />
-      </label>
-      <label for="last_name">
-        Lastname
-        <input type="text" name="last_name" id="last_name" />
-      </label>
-      <label for="country">
-        Country
-        <input type="text" name="country" id="country" />
-      </label>
+    <h1>Login</h1>
+    <form action="" method="post" id="signup">
       <label for="email">
         Email
-        <input type="email" name="email" id="email" />
+        <input type="email" name="email" id="email" required/>
       </label>
-      <label for="number">
-        Phonenumber
-        <input type="number" name="number" id="number" />
+      <label for="password">
+        Password
+        <input type="password" name="password" id="password" required/>
       </label>
       <button>Login</button>
     </form>
-</body>
+  </body>
 </html>
