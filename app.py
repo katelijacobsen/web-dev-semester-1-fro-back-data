@@ -24,20 +24,20 @@ def login():
 
 ####################### LOGIN #########################
 
-@app.get("/login/<user_pk>")
-def login_user(user_pk):
+@app.get("/login/<user_id>")
+def login_user(user_id):
     try:
-        user_pk = request.form.get("user_pk")
+        user_id = request.form.get("user_id")
         user_name = request.form.get("user_name")
         user_password = request.form.get("user_password")
-        return "ok"
+        return render_template("login.html")
     except Exception as ex:
         pass
     finally:
         return "Didn't work, ay?", 500
 
 #######################################################
-
+# Checking if the I'm connected to the db
 @app.get("/users")
 def get_users():
     q = "SELECT * FROM users"
@@ -70,5 +70,4 @@ def create_user():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
         
-
 #######################################################

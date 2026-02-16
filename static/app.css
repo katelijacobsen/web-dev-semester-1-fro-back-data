@@ -5,8 +5,27 @@
 }
 
 header {
-    display: flex;
-    justify-content: space-between;
+  nav {
+    ul {
+      display: flex;
+      justify-content: flex-end;
+      background-color: #1a184e;
+      padding-block: 2rem;
+      padding-inline: 2rem;
+    }
+    li {
+      list-style: none;
+      padding-inline-start: 2rem;
+
+      a {
+        color: var(--text-color);
+        text-decoration: none;
+        &:hover {
+          color: #7988ff;
+        }
+      }
+    }
+  }
 }
 
 body {
@@ -18,7 +37,7 @@ body {
   p {
     color: var(--text-color);
   }
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
 }
 
 #signup {
