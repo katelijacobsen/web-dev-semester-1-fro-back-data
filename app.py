@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 ########################ROUTING#########################
 
-@app.route("/index.html")
+@app.route("/")
 def index():
     return render_template("index.html")
 
@@ -18,6 +18,10 @@ def signup():
 @app.route("/login.html")
 def login():
     return render_template("login.html")
+
+@app.route("/create_destination.html")
+def create_destination():
+    return render_template("create_destination.html")
 
 #######################################################
 

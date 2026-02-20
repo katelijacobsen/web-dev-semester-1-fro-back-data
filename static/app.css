@@ -1,30 +1,54 @@
-:root {
+html {
+  /*Colorpalette*******************/
+  /*Base*/
   --bg-color: #191919;
-  --text-color: #edf1ff;
-  --primary-color: #403bf0;
+  --primary-color-50: #edf1ff;
+  --primary-color-100: #dee7ff;
+  --primary-color-200: #c3d2ff;
+  --primary-color-300: #9fb2ff;
+  --primary-color-400: #7988ff;
+  --primary-color-500: #5960fb;
+  --primary-color-600: #403bf0;
+  --primary-color-700: #362ed4;
+  --primary-color-800: #2d28ab;
+  --primary-color-900: #2a298a;
+  --primary-color-950: #1a184e;
+  --text-color: var(--primary-color-50);
+  /*Interaction colors*/
+  --error-color: #d71900;
+  --warning-color: #ff4266;
+  --success-color: #68c93b;
+  --alert-color: #ffd60a;
+  --info-color: #353efe;
+  
+  /*******************Colorpalette*/
+  
+
+  /*Spacing*************************/
+  --xx-small-spacing: 0.25rem;
+  --x-small-spacing: 0.5rem;
+  --small-spacing: 0.75rem;
+  --base-spacing: 1rem;
+  --medium-small-spacing: 1.25rem;
+  --medium-spacing: 1.5rem;
+  --medium-large-spacing: 1.75rem;
+  --large-spacing: 2rem;
+  --x-large-spacing: 2.25rem;
+  --xx-large-spacing: 2.5rem;
+  --xx-large-spacing: 2.75rem;
+  /*************************Spacing*/
+
+  /*Typography**********************/
+
+  /**********************Typography*/
 }
-/*
-'jacksons-purple': {
-    '50': '#edf1ff',
-    '100': '#dee7ff',
-    '200': '#c3d2ff',
-    '300': '#9fb2ff',
-    '400': '#7988ff',
-    '500': '#5960fb',
-    '600': '#403bf0',
-    '700': '#362ed4',
-    '800': '#2d28ab',
-    '900': '#2a298a',
-    '950': '#1a184e',
-},
-*/
 
 header {
   nav {
     ul {
       display: flex;
       justify-content: flex-end;
-      background-color: #1a184e;
+      background-color: var(--primary-color-950);
       padding-block: 2rem;
       padding-inline: 2rem;
     }
@@ -89,5 +113,20 @@ body {
     &:hover {
       background-color: #5960fb;
     }
+  }
+}
+
+#create_post {
+  background-color: var(--primary-color-300);
+  padding: 2rem 2rem;
+  margin: 0.5rem 0.5rem;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    padding-block-end: 2rem;
   }
 }
