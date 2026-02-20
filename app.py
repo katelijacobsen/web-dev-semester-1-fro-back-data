@@ -24,17 +24,23 @@ def login():
 
 ####################### LOGIN #########################
 
-@app.get("/login/<user_id>")
-def login_user(user_id):
+@app.post("/login.html")
+def login_user():
     try:
-        user_id = request.form.get("user_id")
-        user_name = request.form.get("user_name")
+        user_email = request.form.get("email")
         user_password = request.form.get("user_password")
-        return render_template("login.html")
-    except Exception as ex:
-        pass
+
+        q = "SELECT * FROM users WHERE user_email = %s" #something like that but replace it query with workbench
+        db, cursor = connector.db()
+        cursor.execute(q, (user_email,))
+        user = cursor.fetchone()
+        return render_template("_logincomplete.html", user=user)
+    except Exception as ex: 
+        print(ex)
+        return jsonify({"Msg": "server error", "error":str(ex)}), 500
     finally:
-        return "Didn't work, ay?", 500
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 
 #######################################################
 # Checking if the I'm connected to the db
