@@ -38,8 +38,11 @@ def login_user():
         db, cursor = connector.db()
         cursor.execute(q, (given_email,))
         user = cursor.fetchone()
+        if user is None:
+            return render_template("login.html", error="Invalid email or password")
         if given_password != user["user_password"]:
-            return render_template("login.html", error="Invalid login")
+            return render_template("login.html", error="Invalid email or password")
+
         return render_template("_logincomplete.html", user=user)
     except Exception as ex: 
         print(ex)
