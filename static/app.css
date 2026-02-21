@@ -43,6 +43,11 @@ html {
   /**********************Typography*/
 }
 
+* {
+  padding: 0;
+  margin: 0;
+}
+
 header {
   nav {
     ul {
@@ -77,16 +82,20 @@ body {
     color: var(--text-color);
   }
   font-family: "Courier New", Courier, monospace;
+
 }
 
 #signup {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
+  height: 60dvh;
   background-color: #2a298a;
-  padding-block: 2rem;
-  padding-inline: 5rem;
+  padding-inline: var(--base-spacing);
+  padding-block: var(--base-spacing);
+  margin-inline: var(--base-spacing);
   color: var(--text-color);
   font-size: 1.25rem;
+  border-radius: 4px;
 
   label {
     display: inline-flex;

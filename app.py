@@ -4,7 +4,6 @@ import uuid
 import random
 
 app = Flask(__name__)
-
 ########################ROUTING#########################
 
 @app.route("/")
@@ -15,7 +14,7 @@ def index():
 def signup():
     return render_template("signup.html")
 
-@app.route("/login.html")
+@app.get("/login.html")
 def login():
     return render_template("login.html")
 
@@ -31,13 +30,16 @@ def create_destination():
 @app.post("/login.html")
 def login_user():
     try:
-        user_email = request.form.get("email")
-        user_password = request.form.get("user_password")
+        given_email = request.form.get("email")
+        given_password = request.form.get("password")
 
-        q = "SELECT * FROM users WHERE user_email = %s" #something like that but replace it query with workbench
+        #app.logger.info('%s %s', given_password, given_email) #screw you flask
+        q = "SELECT * FROM users WHERE user_email = %s"
         db, cursor = connector.db()
-        cursor.execute(q, (user_email,))
+        cursor.execute(q, (given_email,))
         user = cursor.fetchone()
+        if given_password != user["user_password"]:
+            return render_template("login.html", error="Invalid login")
         return render_template("_logincomplete.html", user=user)
     except Exception as ex: 
         print(ex)

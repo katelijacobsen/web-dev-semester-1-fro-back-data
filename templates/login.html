@@ -9,16 +9,20 @@
   <body>
     {% include '_header.html' %}
     <h1>Login</h1>
-    <form action="" method="post" id="signup">
+    <form action="/login.html" method="post" id="signup">
+      {% if error %}
+      <span>{{error}}</span>
+      {% endif %}
+
       <label for="email">
         Email
-        <input type="email" name="email" id="email" required/>
+        <input type="email" name="email" id="email" required />
       </label>
       <label for="password">
         Password
-        <input type="password" name="password" id="password" required/>
+        <input type="password" name="password" id="password" required />
       </label>
-      <button>Login</button>
+      <button type="submit">Login</button>
     </form>
   </body>
 </html>
