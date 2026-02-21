@@ -1,28 +1,19 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}" />
-    <title>Document</title>
-  </head>
-  <body>
-    {% include '_header.html' %}
-    <h1>Login</h1>
-    <form action="/login.html" method="post" id="signup">
-      {% if error %}
-      <span>{{error}}</span>
-      {% endif %}
+{% extends 'base.html' %}
+{% block header %} <h1>{% block title%} Log in {% endblock title %}</h1> {% endblock header %}
 
-      <label for="email">
-        Email
-        <input type="email" name="email" id="email" required />
-      </label>
-      <label for="password">
-        Password
-        <input type="password" name="password" id="password" required />
-      </label>
-      <button type="submit">Login</button>
-    </form>
-  </body>
-</html>
+{% block content %}
+<form action="/login" method="post" id="signup">
+  {% if error %}
+  <span>{{error}}</span>
+  {% endif %}
+  <label for="email">
+    Email
+    <input type="email" name="email" id="email" required />
+  </label>
+  <label for="password">
+    Password
+    <input type="password" name="password" id="password" required />
+  </label>
+  <button type="submit">Login</button>
+</form>
+{% endblock content %}

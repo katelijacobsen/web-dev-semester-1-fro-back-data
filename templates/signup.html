@@ -1,44 +1,41 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
-    <title>Document</title>
-  </head>
-  <body>
-    {% include '_header.html'%}
-    <h1>Sign up</h1>
-    <form action="/signup" method="post" id="signup">
-      <label for="user_name">
-        Firstname
-        <input type="text" name="user_name" id="user_name" />
-      </label>
-      <label for="user_last_name">
-        Lastname
-        <input type="text" name="user_last_name" id="user_last_name" />
-      </label>
-      <label for="country">
-        Country
-        <input type="text" name="country" id="country" />
-      </label>
-      <label for="user_email">
-        Email
-        <input type="email" name="user_email" id="user_email" />
-      </label>
-      <label for="tel">
-        Phonenumber
-        <input type="tel" name="user_tel" id="user_tel" />
-      </label>
-      <label for="password">
-        Password
-        <input type="password" name="user_password" id="user_password" required/>
-      </label>
-      <label for="password">
-        Confirm Password
-        <input type="password" name="confirm_password" id="confirm_password" required/>
-      </label>
-      <button>Sign up</button>
-    </form>
-  </body>
-</html>
+{% extends 'base.html' %}
+{% block header %} <h1>{% block title%} Sign Up {% endblock title %}</h1> {% endblock header %}
+
+{% block content%}
+<form action="/signup" method="post" id="signup">
+  <label for="user_name">
+    Firstname
+    <input type="text" name="user_name" id="user_name" />
+  </label>
+  <label for="user_last_name">
+    Lastname
+    <input type="text" name="user_last_name" id="user_last_name" />
+  </label>
+  <label for="country">
+    Country
+    <input type="text" name="country" id="country" />
+  </label>
+  <label for="user_email">
+    Email
+    <input type="email" name="user_email" id="user_email" />
+  </label>
+  <label for="tel">
+    Phonenumber
+    <input type="tel" name="user_tel" id="user_tel" />
+  </label>
+  <label for="password">
+    Password
+    <input type="password" name="user_password" id="user_password" required />
+  </label>
+  <label for="password">
+    Confirm Password
+    <input
+      type="password"
+      name="confirm_password"
+      id="confirm_password"
+      required
+    />
+  </label>
+  <button>Sign up</button>
+</form>
+{% endblock content%}

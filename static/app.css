@@ -139,3 +139,9 @@ body {
     padding-block-end: 2rem;
   }
 }
+
+
+footer {
+  background-color: var(--primary-color-500);
+  padding: var(--medium-large-spacing);
+}

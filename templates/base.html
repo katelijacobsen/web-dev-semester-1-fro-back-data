@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    {% block head %}
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}" />
+    <title>{% block title %}{% endblock title %}</title>
+    {% endblock head %}
+  </head>
+  <body>
+    <header>
+      <nav>
+        {% if g.user %}
+        <ul>
+          <li>
+            <a href="/">Home</a>
+          </li>
+          <li>
+            <span>{{ g.user['user_name']}}</span>
+          </li>
+          <li>
+            <a href="logout.html"> Log Out </a>
+          </li>
+        </ul>
+        {% else %}
+        <ul>
+          <li>
+            <a href="/">Home</a>
+          </li>
+          <li>
+            <a href="login.html">Login</a>
+          </li>
+          <li>
+            <a href="signup.html">Sign up</a>
+          </li>
+        </ul>
+        {% endif %}
+      </nav>
+    </header>
+
+    {% block content %}{% endblock content %}
+
+    <footer>
+      <h4>FOOTER TEST</h4>
+    </footer>
+    <script src="/static/mixhtml.js"></script>
+  </body>
+</html>

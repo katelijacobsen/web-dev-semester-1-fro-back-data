@@ -1,13 +1,30 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, g, session, redirect, url_for
 import connector
 import uuid
-import random
 
 app = Flask(__name__)
+# secret key to protect data
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
+@app.before_request
+def load_user():
+    user_id = session.get("user_id")
+    if user_id:
+        db, cursor = connector.db()
+        cursor.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
+        # using g to globally handling request & for db connection
+        g.user = cursor.fetchone()
+        cursor.close()
+        db.close()
+    else:
+        g.user = None
+
 ########################ROUTING#########################
 
 @app.route("/")
 def index():
+    if g.user:
+        return render_template("index.html", user=g.user) #use this in base.html
     return render_template("index.html")
 
 @app.route("/signup.html")
@@ -18,32 +35,48 @@ def signup():
 def login():
     return render_template("login.html")
 
+@app.route('/logout.html')
+def logout():
+    session.clear()
+    return redirect(url_for("index"))
+
 @app.route("/create_destination.html")
 def create_destination():
     return render_template("create_destination.html")
+
+########################ERROR HANDLER#########################
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template("/"), 404
+#make this later pretty
 
 #######################################################
 
 
 ####################### LOGIN #########################
 
-@app.post("/login.html")
+@app.post("/login")
 def login_user():
     try:
         given_email = request.form.get("email")
         given_password = request.form.get("password")
 
         #app.logger.info('%s %s', given_password, given_email) #screw you flask
+        #query
         q = "SELECT * FROM users WHERE user_email = %s"
         db, cursor = connector.db()
         cursor.execute(q, (given_email,))
         user = cursor.fetchone()
-        if user is None:
+        #error handling if login doesn't match in the db
+        if user is None or given_password !=user["user_password"]:
             return render_template("login.html", error="Invalid email or password")
-        if given_password != user["user_password"]:
-            return render_template("login.html", error="Invalid email or password")
+        
+        # using session to store the login
+        session["user_id"] = user['user_id']
+        session["user_name"] = user['user_name']
 
-        return render_template("_logincomplete.html", user=user)
+        return redirect(url_for("index"))
     except Exception as ex: 
         print(ex)
         return jsonify({"Msg": "server error", "error":str(ex)}), 500
@@ -62,6 +95,7 @@ def get_users():
     return jsonify(users)
 
 ####################### SIGN UP #######################
+
 @app.post("/signup")
 def create_user():
     try:
@@ -73,9 +107,9 @@ def create_user():
         user_tel = request.form.get("user_tel")
         user_password = request.form.get("user_password")
         user_email = request.form.get("user_email")
-        q = "INSERT INTO users (user_name, user_last_name, country, user_email, user_tel, user_password) VALUES(%s, %s, %s, %s, %s, %s)"
+        q = "INSERT INTO users (user_id, user_name, user_last_name, country, user_email, user_tel, user_password) VALUES(%s, %s, %s, %s, %s, %s, %s)"
         db,cursor = connector.db()
-        cursor.execute(q, (user_name, user_last_name, country, user_email, user_tel, user_password))
+        cursor.execute(q, (user_id, user_name, user_last_name, country, user_email, user_tel, user_password))
         db.commit()
         return render_template("complete.html")
     except Exception as ex:

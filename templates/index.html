@@ -1,27 +1,6 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
-    <title>Document</title>
-  </head>
-  <body>
-    {% include '_header.html' %}
-    <article>
-      <h1>Hello World</h1>
-      <search>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Animi error
-          eos minima aperiam odio mollitia nesciunt inventore ratione, numquam
-          reiciendis porro ex beatae officia molestiae saepe obcaecati dolore
-          aliquid? Amet nulla dicta, ducimus nobis maiores aspernatur cum
-          temporibus molestias vitae. Id doloremque enim amet laborum non
-          veritatis voluptatem, placeat magni?
-        </p>
-      </search>
-    </article>
-    {% include '_footer.html' %}
-    <script src="/static/mixhtml.js"></script>
-  </body>
-</html>
+{% extends 'base.html' %}
+{% block header %} <h1>{% block title%} index {% endblock title %}</h1> {% endblock header %}
+
+{% block content%}
+<p>Hej med dig</p>
+{% endblock content%}
