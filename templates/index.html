@@ -2,5 +2,11 @@
 {% block header %} <h1>{% block title%} index {% endblock title %}</h1> {% endblock header %}
 
 {% block content%}
-<p>Hej med dig</p>
-{% endblock content%}
+
+{% if g.user %}
+<p>Hej med dig, {{ g.user['user_name']}}</p>
+{% else %}
+<p>Velkommen til platformen, log in eller sign up hvis du er ny</p>
+{% endif %}
+
+{% endblock content %}

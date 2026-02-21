@@ -4,7 +4,7 @@ import uuid
 
 app = Flask(__name__)
 # secret key to protect data
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+app.secret_key = b'smashkeyboarded123'
 
 @app.before_request
 def load_user():
@@ -40,9 +40,9 @@ def logout():
     session.clear()
     return redirect(url_for("index"))
 
-@app.route("/create_destination.html")
-def create_destination():
-    return render_template("create_destination.html")
+@app.route("/create.html")
+def create_post():
+    return render_template("create.html")
 
 ########################ERROR HANDLER#########################
 
