@@ -140,3 +140,30 @@ def create_user():
         if "db" in locals(): db.close()
         
 #######################################################
+
+#######################################################
+
+@app.post("/api-check-username")
+def check_username():
+    try:
+        #TODO validate username
+        user_username = connector.validate_user_username()
+        db, cursor = connector.db()
+        q = "SELECT * FROM users WHERE user_username = %s"
+        cursor.execute(q, (user_username,))
+        row = cursor.fetchone()
+        if not row: 
+            return f"""<browser mix-update="span">Username avaiable</browser>"""
+        
+        return f"""<browser mix-update="span">Username already taken</browser>"""
+    except Exception as ex:
+        ic(ex)
+        if "--error-------------- user_username" in str(ex):
+            return f"""<browser mix-update="span">{ex.args[0]}</browser>""", 400
+        
+        return f"""<browser mix-update="span">System is under maintenance</browser>""", 500
+
+    finally:
+        pass
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
