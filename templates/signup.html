@@ -1,7 +1,7 @@
 {% extends 'base.html' %} {% block header %}
 <h1>{% block title%} Sign Up {% endblock title %}</h1>
 {% endblock header %} {% block content%}
-<form mix-post="api-create-user" id="signup">
+<form mix-post="/api-create-user" id="signup">
   <legend>Sign up here & become a foodhead</legend>
 
   <div class="field">
@@ -11,7 +11,8 @@
       name="user_username"
       id="user_username"
       aria-describedby="signup-error"
-      mix-validate="{{ connector.REGEX_USER_NAME }}"
+      mix-validate="{{ REGEX_USER_NAME }}"
+      mix-post="/api-check-username"
     />
     <span id="signup-error" class="error-msg" aria-live="polite"
       >Error Message</span
@@ -24,7 +25,7 @@
       name="user_first_name"
       id="user_first_name"
       aria-describedby="signup-error"
-      mix-validate="{{ connector.REGEX_USER_NAME }}"
+      mix-validate="{{ REGEX_USER_NAME }}"
     />
     <span id="signup-error" class="error-msg" aria-live="polite"
       >Error Message</span
@@ -37,7 +38,7 @@
       name="user_last_name"
       id="user_last_name"
       aria-describedby="signup-error"
-      mix-validate="{{ connector.REGEX_USER_NAME }}"
+      mix-validate="{{ REGEX_USER_NAME }}"
     />
     <span id="signup-error" class="error-msg" aria-live="polite"
       >Error Message</span

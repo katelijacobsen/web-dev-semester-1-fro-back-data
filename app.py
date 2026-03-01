@@ -44,7 +44,7 @@ def signup():
         #if "cursor" in locals(): cursor.close()
         #if "db" in locals(): db.close()
 
-    return render_template("signup.html")
+    return render_template("signup.html", conncector=connector)
 
 @app.get("/login.html")
 def login():
@@ -88,7 +88,7 @@ def login_user():
         
         # using session to store the login
         session["user_id"] = user['user_id']
-        session["user_username"] = user['user_username']
+        session["user_name"] = user['user_name']
 
         return redirect(url_for("index"))
     except Exception as ex: 
@@ -123,13 +123,13 @@ def create_user():
         user_password = request.form.get("user_password")
         user_email = request.form.get("user_email")
         #query
-        q = "INSERT INTO users (user_id, user_username, user_first_name, user_last_name, country, user_tel, user_password, user_email) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
+        q = "INSERT INTO users (user_id, user_username, user_last_name, country, user_email, user_tel, user_password) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
         db,cursor = connector.db()
         # execute the query with the data
-        cursor.execute(q, (user_id, user_username, user_first_name, user_last_name, country, user_tel, user_password, user_email))
+        cursor.execute(q, (user_id, user_username, user_first_name, user_last_name, country, user_email, user_tel, user_password))
         # lol forgot this one
         db.commit()
-        return render_template("/")
+        return render_template("complete.html")
     except Exception as ex:
         # handle error 
         if "Duplicate entry" in str(ex) and "user_username" in str(ex):
@@ -141,29 +141,42 @@ def create_user():
         
 #######################################################
 
-#######################################################
-
-@app.post("/api-check-username")
-def check_username():
+@app.post("/api-check-user")
+def check_user(): 
     try:
-        #TODO validate username
         user_username = connector.validate_user_username()
         db, cursor = connector.db()
+        
         q = "SELECT * FROM users WHERE user_username = %s"
         cursor.execute(q, (user_username,))
         row = cursor.fetchone()
-        if not row: 
-            return f"""<browser mix-update="span">Username avaiable</browser>"""
+        if not row:
+            return f"""<browser mix-update="span">Username is avaiable</browser>""" 
         
-        return f"""<browser mix-update="span">Username already taken</browser>"""
+        return f"""<browser mix-update="span">Username is taken</browser>""" 
+    
     except Exception as ex:
         ic(ex)
-        if "--error-------------- user_username" in str(ex):
-            return f"""<browser mix-update="span">{ex.args[0]}</browser>""", 400
         
-        return f"""<browser mix-update="span">System is under maintenance</browser>""", 500
-
-    finally:
-        pass
+        if "-----error--- user_username" in str(ex):
+            return f"""<browser mix-update="span">{ex.args[0]}</browser>""",400
+        return f"""<browser mix-update="span">System whoops</browser>""", 500
+             
+        
+    finally: 
         if "cursor" in locals(): cursor.close()
-        if "db" in locals(): db.close()
+        if "db" in locals(): db.close() 
+
+#######################################################
+#######################################################
+
+@app.post("/api-create-user")
+def create_user(): 
+    try:
+        pass
+    except Exception as ex:
+        pass
+    finally: 
+        pass
+
+#######################################################
