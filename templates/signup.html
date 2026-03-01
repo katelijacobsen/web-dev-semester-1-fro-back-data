@@ -1,41 +1,112 @@
-{% extends 'base.html' %}
-{% block header %} <h1>{% block title%} Sign Up {% endblock title %}</h1> {% endblock header %}
-
-{% block content%}
+{% extends 'base.html' %} {% block header %}
+<h1>{% block title%} Sign Up {% endblock title %}</h1>
+{% endblock header %} {% block content%}
 <form action="/signup" method="post" id="signup">
-  <label for="user_name">
-    Firstname
-    <input type="text" name="user_name" id="user_name" />
-  </label>
-  <label for="user_last_name">
-    Lastname
-    <input type="text" name="user_last_name" id="user_last_name" />
-  </label>
-  <label for="country">
-    Country
-    <input type="text" name="country" id="country" />
-  </label>
-  <label for="user_email">
-    Email
-    <input type="email" name="user_email" id="user_email" />
-  </label>
-  <label for="tel">
-    Phonenumber
-    <input type="tel" name="user_tel" id="user_tel" />
-  </label>
-  <label for="password">
-    Password
-    <input type="password" name="user_password" id="user_password" required />
-  </label>
-  <label for="password">
-    Confirm Password
+  <legend>Sign up here & become a foodhead</legend>
+
+  <div class="field">
+    <label for="user_username" placeholder=" ">Username</label>
+    <input
+      type="text"
+      name="user_username"
+      id="user_username"
+      aria-describedby="signup-error"
+    />
+    <span id="signup-error" class="error-msg" aria-live="polite"
+      >Error Message</span
+    >
+  </div>
+  <div class="field">
+    <label for="user_first_name" placeholder=" ">First name</label>
+    <input
+      type="text"
+      name="user_first_name"
+      id="user_first_name"
+      aria-describedby="signup-error"
+    />
+    <span id="signup-error" class="error-msg" aria-live="polite"
+      >Error Message</span
+    >
+  </div>
+  <div class="field">
+    <label for="user_last_name" placeholder=" ">Last name</label>
+    <input
+      type="text"
+      name="user_last_name"
+      id="user_last_name"
+      aria-describedby="signup-error"
+    />
+    <span id="signup-error" class="error-msg" aria-live="polite"
+      >Error Message</span
+    >
+  </div>
+
+  <div class="field">
+    <label for="country" placeholder=" ">Country</label>
+    <input
+      type="text"
+      name="country"
+      id="country"
+      aria-describedby="signup-error"
+    />
+    <span id="signup-error" class="error-msg" aria-live="polite"
+      >Error Message</span
+    >
+  </div>
+
+  <div class="field">
+    <label for="user_email" placeholder=" ">Email</label>
+    <input
+      type="email"
+      name="user_email"
+      id="user_email"
+      aria-describedby="signup-error"
+    />
+    <span id="signup-error" class="error-msg" aria-live="polite"
+      >Error Message</span
+    >
+  </div>
+
+  <div class="field">
+    <label for="user_tel" placeholer=" ">Phonenumber</label>
+    <input
+      type="tel"
+      name="user_tel"
+      id="user_tel"
+      aria-describedby="signup-error"
+    />
+    <span id="signup-error" class="error-msg" aria-live="polite"
+      >Error Message</span
+    >
+  </div>
+
+  <div class="field">
+    <label for="user_password">Password</label>
+    <input
+      type="password"
+      name="user_password"
+      id="user_password"
+      aria-describedby="signup-error"
+      required
+    />
+    <span id="signup-error" class="error-msg" aria-live="polite"
+      >Error Message</span
+    >
+  </div>
+
+  <div class="field">
+    <label for="password">Confirm Password</label>
     <input
       type="password"
       name="confirm_password"
       id="confirm_password"
+      aria-describedby="signup-error"
       required
     />
-  </label>
+    <span id="signup-error" class="error-msg" aria-live="polite"
+      >Error Message</span
+    >
+  </div>
   <button>Sign up</button>
 </form>
 {% endblock content%}

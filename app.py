@@ -1,6 +1,11 @@
 from flask import Flask, render_template, request, jsonify, g, session, redirect, url_for
+from icecream import ic
+
 import connector
 import uuid
+import time
+
+ic.configureOutput(prefix=f"________________________________|  '", includeContext=True)
 
 app = Flask(__name__)
 # secret key to protect data
@@ -27,8 +32,18 @@ def index():
         return render_template("index.html", user=g.user) #use this in base.html
     return render_template("index.html")
 
-@app.route("/signup.html")
+@app.get("/signup")
 def signup():
+    try: 
+        #TODO Validate data
+        pass
+    except Exception as ex:
+        pass
+    finally:
+        pass
+        #if "cursor" in locals(): cursor.close()
+        #if "db" in locals(): db.close()
+
     return render_template("signup.html")
 
 @app.get("/login.html")
@@ -46,10 +61,9 @@ def create_post():
 
 ########################ERROR HANDLER#########################
 
-@app.errorhandler(404)
-def page_not_found(error):
-    return render_template("/"), 404
-#make this later pretty
+#@app.errorhandler(404)
+#def page_not_found(error):
+#    return render_template("/"), 404
 
 #######################################################
 
@@ -74,7 +88,7 @@ def login_user():
         
         # using session to store the login
         session["user_id"] = user['user_id']
-        session["user_name"] = user['user_name']
+        session["user_username"] = user['user_username']
 
         return redirect(url_for("index"))
     except Exception as ex: 
@@ -101,20 +115,26 @@ def create_user():
     try:
         #TODO: Validate data
         user_id  = uuid.uuid4().hex
-        user_name = request.form.get("user_name")
-        user_last_name = request.form.get("user_last_name")
+        user_username = connector.validate_user_username()
+        user_first_name = connector.validate_user_first_name()
+        user_last_name = connector.validate_user_last_name()
         country = request.form.get("country")
         user_tel = request.form.get("user_tel")
         user_password = request.form.get("user_password")
         user_email = request.form.get("user_email")
-        q = "INSERT INTO users (user_id, user_name, user_last_name, country, user_email, user_tel, user_password) VALUES(%s, %s, %s, %s, %s, %s, %s)"
+        #query
+        q = "INSERT INTO users (user_id, user_username, user_first_name, user_last_name, country, user_tel, user_password, user_email) VALUES(%s, %s, %s, %s, %s, %s, %s, %s)"
         db,cursor = connector.db()
-        cursor.execute(q, (user_id, user_name, user_last_name, country, user_email, user_tel, user_password))
+        # execute the query with the data
+        cursor.execute(q, (user_id, user_username, user_first_name, user_last_name, country, user_tel, user_password, user_email))
+        # lol forgot this one
         db.commit()
-        return render_template("complete.html")
+        return render_template("/")
     except Exception as ex:
-        print(ex)
-        return jsonify({"Msg": "server error", "error":str(ex)}), 500
+        # handle error 
+        if "Duplicate entry" in str(ex) and "user_username" in str(ex):
+            return "username is already taken", 400
+        return ex.args[0], ex.args[1]
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
