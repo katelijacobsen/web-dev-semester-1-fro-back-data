@@ -65,8 +65,16 @@ def validate_user_username():
 
 def validate_user_password():
     user_password = request.form.get("user_password")
+    confirm_password = request.form.get("confirm_password")
+    
+    if not user_password or not confirm_password:
+        raise Exception("Password and confirmation are required")
+    
+    if user_password != confirm_password:
+        raise Exception("Passwords do not match")
+    
     if not re.match(REGEX_USER_PASSWORD, user_password):
-        raise Exception(f"---------error------ user_password")
+        raise Exception(f"Password must be at least {USER_PASSWORD_MIN} characters long")
     
     return user_password
 

@@ -11,7 +11,7 @@
       name="user_username"
       id="user_username"
       aria-describedby="signup-error"
-      mix-validate="{{ REGEX_USER_NAME }}"
+      mix-validate="{{ config.REGEX_USER_NAME }}"
       mix-post="/api-check-username"
     />
     <span id="signup-error" class="error-msg" aria-live="polite"
@@ -25,7 +25,7 @@
       name="user_first_name"
       id="user_first_name"
       aria-describedby="signup-error"
-      mix-validate="{{ REGEX_USER_NAME }}"
+      mix-validate="{{ config.REGEX_USER_NAME }}"
     />
     <span id="signup-error" class="error-msg" aria-live="polite"
       >Error Message</span
@@ -38,7 +38,7 @@
       name="user_last_name"
       id="user_last_name"
       aria-describedby="signup-error"
-      mix-validate="{{ REGEX_USER_NAME }}"
+      mix-validate="{{ config.REGEX_USER_NAME }}"
     />
     <span id="signup-error" class="error-msg" aria-live="polite"
       >Error Message</span
@@ -112,5 +112,6 @@
     >
   </div>
   <button>Sign up</button>
+  <div id="tooltip"></div>
 </form>
 {% endblock content%}
