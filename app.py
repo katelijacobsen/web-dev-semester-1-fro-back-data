@@ -1,16 +1,77 @@
-from flask import Flask, render_template, request, jsonify, g, session, redirect, url_for
+from flask import Flask, flash, render_template, request, jsonify, g, session, redirect, url_for
+from werkzeug.utils import secure_filename
 from icecream import ic
+from werkzeug.utils import secure_filename
 
+import os
 import config
 import uuid
 import time
 
+UPLOAD_FOLDER = './static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
 ic.configureOutput(prefix=f"________________________________|  '", includeContext=True)
+
 
 app = Flask(__name__)
 # secret key to protect data
 app.secret_key = b'smashkeyboarded123'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1000 * 1000
 
+
+@app.post('/api-create-post')
+def upload_file():
+    try:
+        post_title = request.form.get('post_title')
+        post_description = request.form.get('post_description')
+        
+        
+        file = request.files['file']
+        file_key = f"{uuid.uuid4().hex}_{file.filename}"
+        path = f"{UPLOAD_FOLDER }/{file_key}"
+        file.save(path)
+        
+        #creating object
+        post = {
+            'post_id': uuid.uuid4().hex,
+            'user_id': session['user_id'], #dictionary w/key
+            'post_title': post_title,
+            'post_img_key': file_key,
+            'post_description': post_description,
+            'post_created_at': int(time.time())+3600
+        }
+        
+        db, cursor = config.db()
+        q = """
+        INSERT INTO posts (
+            post_id,
+            user_id,
+            post_title,
+            post_img_key,
+            post_description,
+            post_created_at
+        ) VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        
+        cursor.execute(q, (
+            post["post_id"],
+            post["user_id"],
+            post["post_title"],
+            post["post_img_key"],
+            post["post_description"],
+            post["post_created_at"]
+        ))
+        
+        return render_template("index.html", post=post)
+    
+    except Exception as ex: 
+        ic(ex)
+        return jsonify({"Msg": "server error", "error":str(ex)}), 500 
+    finally: 
+        if 'cursor' in locals(): cursor.close()
+        if 'db' in locals(): db.close()
 
 
 #ic( int(time.time())+3600)
@@ -36,7 +97,7 @@ def index():
         return render_template("index.html", user=g.user) #use this in base.html
     return render_template("index.html")
 
-@app.get("/signup")
+@app.get("/signup.html")
 def signup():
     try: 
         #TODO Validate data
@@ -117,7 +178,6 @@ def get_users():
 @app.post("/signup")
 def signup_post():
     try:
-        ic("***************************************************")
         #TODO: Validate data
         user_id  = uuid.uuid4().hex
         user_username = config.validate_user_username()
@@ -141,6 +201,8 @@ def signup_post():
         # handle error 
         if "Duplicate entry" in str(ex) and "user_username" in str(ex):
             return "username is already taken", 400
+        if "Duplicate entry" in str(ex) and "user_email" in str(ex):
+            return "email is already regristered", 400
         error_msg = str(ex) if ex.args else "Server error"
         return error_msg, 500
     finally:
@@ -159,17 +221,15 @@ def check_user():
         cursor.execute(q, (user_username,))
         row = cursor.fetchone()
         if not row:
-            return f"""<browser mix-update="span">Username is avaiable</browser>""" 
+            return f"""<browser mix-update="span">Avaiable</browser>""" 
         
-        return f"""<browser mix-update="span">Username is taken</browser>""" 
+        return f"""<browser mix-update="span">Username or email is taken</browser>""" 
     
     except Exception as ex:
         ic(ex)
         if "-------error-------------- user_username" in str(ex):
             return f"""<browser mix-update="span">Invalid username</browser>""", 400
         return f"""<browser mix-update="span">System error</browser>""", 500
-             
-        
     finally: 
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close() 
@@ -185,14 +245,14 @@ def create_user():
         user_first_name = config.validate_user_first_name()
         user_last_name = config.validate_user_last_name()
         user_email = request.form.get("user_email")
-        user_tel = request.form.get("user_tel")
+        user_phone = request.form.get("user_tel")
         country = request.form.get("country")
         user_password = config.validate_user_password()
         user_created_at = int(time.time())+3600
         
         db, cursor = config.db()
-        q = "INSERT INTO users (user_id, user_username, user_first_name, user_last_name, user_email, user_tel, country, user_password, user_created_at) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        cursor.execute(q, (user_id, user_username, user_first_name, user_last_name, user_email, user_tel, country, user_password, user_created_at))
+        q = "INSERT INTO users (user_id, user_username, user_first_name, user_last_name, user_email, user_phone, country, user_password, user_created_at) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(q, (user_id, user_username, user_first_name, user_last_name, user_email, user_phone, country, user_password, user_created_at))
         db.commit()
         
         tip = render_template("tooltip.html", msg="Sign up complete")
@@ -201,7 +261,9 @@ def create_user():
     except Exception as ex:
         ic(ex)
         if "Duplicate entry" in str(ex) and "user_username" in str(ex):
-            return f"""<browser mix-update="#tooltip">Username already taken</browser>""", 400
+            return f"""<browser mix-update="#user_">Username already taken</browser>""", 400
+        if "Duplicate entry" in str(ex) and "user_email" in str(ex):
+            return f"""<browser mix-update="#user_email_error">Email already taken</browser>""", 400
         msg = str(ex) if ex.args else "System error"
         return f"""<browser mix-update="#tooltip">{msg}</browser>""", 500
     finally: 
@@ -209,3 +271,36 @@ def create_user():
         if "db" in locals(): db.close()
 
 #######################################################
+
+@app.post("/api-check-email")
+def check_email():
+    try:
+        user_email = request.form.get("user_email")
+        db, cursor = config.db()
+        q = "SELECT * FROM users WHERE user_email = %s"
+        cursor.execute(q, (user_email,))
+        row = cursor.fetchone()
+        if not row:
+            return f"""<browser mix-update="#user_email_error">Available</browser>"""
+        return f"""<browser mix-update="#user_email_error">Email is already registered</browser>""", 400
+    except Exception as ex:
+        ic(ex)
+        if "-------error-------------- user_email" in str(ex):
+            return f"""<browser mix-update="#user_email_error">Invalid email</browser>""", 400
+        return f"""<browser mix-update="#user_email_error">whoops</browser>""", 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+#######################################################
+
+@app.get("/items")
+def show_items():
+    try:
+        return render_template("index.html")
+    except Exception as ex: 
+        ic(ex)
+        return "whoops...", 500
+
+
+
