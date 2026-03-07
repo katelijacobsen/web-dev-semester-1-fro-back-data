@@ -1,9 +1,7 @@
 from flask import Flask, flash, render_template, request, jsonify, g, session, redirect, url_for
-from werkzeug.utils import secure_filename
+from flask_session import Session
 from icecream import ic
-from werkzeug.utils import secure_filename
 
-import os
 import config
 import uuid
 import time
@@ -16,62 +14,12 @@ ic.configureOutput(prefix=f"________________________________|  '", includeContex
 
 app = Flask(__name__)
 # secret key to protect data
-app.secret_key = b'smashkeyboarded123'
+#app.secret_key = b'smashkeyboarded123'
+app.config['SESSION_TYPE'] = 'filesystem'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1000 * 1000
 
-
-@app.post('/api-create-post')
-def upload_file():
-    try:
-        post_title = request.form.get('post_title')
-        post_description = request.form.get('post_description')
-        
-        
-        file = request.files['file']
-        file_key = f"{uuid.uuid4().hex}_{file.filename}"
-        path = f"{UPLOAD_FOLDER }/{file_key}"
-        file.save(path)
-        
-        #creating object
-        post = {
-            'post_id': uuid.uuid4().hex,
-            'user_id': session['user_id'], #dictionary w/key
-            'post_title': post_title,
-            'post_img_key': file_key,
-            'post_description': post_description,
-            'post_created_at': int(time.time())+3600
-        }
-        
-        db, cursor = config.db()
-        q = """
-        INSERT INTO posts (
-            post_id,
-            user_id,
-            post_title,
-            post_img_key,
-            post_description,
-            post_created_at
-        ) VALUES (%s, %s, %s, %s, %s, %s)
-        """
-        
-        cursor.execute(q, (
-            post["post_id"],
-            post["user_id"],
-            post["post_title"],
-            post["post_img_key"],
-            post["post_description"],
-            post["post_created_at"]
-        ))
-        
-        return render_template("index.html", post=post)
-    
-    except Exception as ex: 
-        ic(ex)
-        return jsonify({"Msg": "server error", "error":str(ex)}), 500 
-    finally: 
-        if 'cursor' in locals(): cursor.close()
-        if 'db' in locals(): db.close()
+Session(app)
 
 
 #ic( int(time.time())+3600)
@@ -97,30 +45,38 @@ def index():
         return render_template("index.html", user=g.user) #use this in base.html
     return render_template("index.html")
 
-@app.get("/signup.html")
-def signup():
-    try: 
-        #TODO Validate data
-        pass
+
+@app.get("/signup")
+def signup_post():
+    try:
+        user = session.get("user", "")
+        return render_template("signup.html", user=user, config=config)
     except Exception as ex:
-        pass
-    finally:
-        pass
-        #if "cursor" in locals(): cursor.close()
-        #if "db" in locals(): db.close()
+        ic(ex)
+        return "Haha whoops probably a type error. Have a nice day. Go touch some grass", 500
 
-    return render_template("signup.html", config=config)
 
-@app.get("/login.html")
+@app.get("/login")
 def login():
-    return render_template("login.html")
+    try:
+        user = session.get("user", "")
+        if not user: #if they are not login then show login page
+            return render_template("login.html")
+        return redirect("profile") #show profile for users that are logged in
+    except Exception as ex:
+        ic(ex)
+        return "whoops" # of course "best case" scenario :^)
 
 @app.route('/logout.html')
 def logout():
-    session.clear()
-    return redirect(url_for("index"))
+    try:
+        session.clear()
+        return redirect("/login")
+    except Exception as ex: 
+        ic(ex)
+        return "haha u can't figure out to logout. sad."
 
-@app.route("/create.html")
+@app.route("/create")
 def create_post():
     return render_template("create.html")
 
@@ -135,30 +91,49 @@ def create_post():
 
 ####################### LOGIN #########################
 
-@app.post("/login")
+@app.post("/api-login")
 def login_user():
     try:
-        given_email = request.form.get("email")
-        given_password = request.form.get("password")
+        given_email = config.validate_user_email()
+        given_password = config.validate_user_email()
 
         #app.logger.info('%s %s', given_password, given_email) #screw you flask
+        
+        # get db
+        db, cursor = config.db()
         #query
         q = "SELECT * FROM users WHERE user_email = %s"
-        db, cursor = config.db()
+        
         cursor.execute(q, (given_email,))
         user = cursor.fetchone()
-        #error handling if login doesn't match in the db
-        if user is None or given_password !=user["user_password"]:
-            return render_template("login.html", error="Invalid email or password")
         
-        # using session to store the login
-        session["user_id"] = user['user_id']
-        session["user_username"] = user['user_username']
-
-        return redirect(url_for("index"))
+        #error handling if login doesn't match 
+        if not user or not given_password(user["given_password"], given_password): 
+            error_msg = "The email or password you entered is incorrect"
+            tip = render_template("/tip.html", msg=error_msg)
+            return f"""<browser mix-after-begin="#tooltip">{tip}</browser> """, 400
+        
+        user.pop("given_password")
+        session["user"] = user
+        
+        return f"""<browser mix-redirect="/profile"></browser>"""
+    
     except Exception as ex: 
-        print(ex)
-        return jsonify({"Msg": "server error", "error":str(ex)}), 500
+        ic(ex)
+        
+        if not user or not given_password(user["given_password"], given_password): 
+            error_msg = "The email or password you entered is incorrect"
+            tip = render_template("/tip.html", msg=error_msg)
+            return f"""<browser mix-after-begin="#tooltip">{tip}</browser> """, 400
+        
+        
+        
+        # Of course best case scenario :)
+        error_msg = "System under maintenance"
+        tip = render_template("tip.html", status="error", msg = error_msg)        
+        return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 500
+    
+    
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
@@ -175,40 +150,7 @@ def get_users():
 
 ####################### SIGN UP #######################
 
-@app.post("/signup")
-def signup_post():
-    try:
-        #TODO: Validate data
-        user_id  = uuid.uuid4().hex
-        user_username = config.validate_user_username()
-        user_first_name = config.validate_user_first_name()
-        user_last_name = config.validate_user_last_name()
-        country = request.form.get("country")
-        user_tel = request.form.get("user_tel")
-        user_password = config.validate_user_password()
-        user_email = request.form.get("user_email")
-        user_created_at = int(time.time())+3600
-        ic(user_created_at)
-        #query
-        q = "INSERT INTO users (user_id, user_username, user_first_name, user_last_name, country, user_email, user_tel, user_password, user_created_at) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        db,cursor = config.db()
-        # execute the query with the data
-        cursor.execute(q, (user_id, user_username, user_first_name, user_last_name, country, user_email, user_tel, user_password, user_created_at))
-        # commit the transactionF
-        db.commit()
-        return render_template("complete.html")
-    except Exception as ex:
-        # handle error 
-        if "Duplicate entry" in str(ex) and "user_username" in str(ex):
-            return "username is already taken", 400
-        if "Duplicate entry" in str(ex) and "user_email" in str(ex):
-            return "email is already regristered", 400
-        error_msg = str(ex) if ex.args else "Server error"
-        return error_msg, 500
-    finally:
-        if "cursor" in locals(): cursor.close()
-        if "db" in locals(): db.close()
-        
+
 #######################################################
 
 @app.post("/api-check-user")
@@ -272,35 +214,56 @@ def create_user():
 
 #######################################################
 
-@app.post("/api-check-email")
-def check_email():
+@app.post('/api-create-post')
+def upload_file():
     try:
-        user_email = request.form.get("user_email")
+        post_title = request.form.get('post_title')
+        post_description = request.form.get('post_description')
+        
+        
+        file = request.files['file']
+        file_key = f"{uuid.uuid4().hex}_{file.filename}"
+        path = f"{UPLOAD_FOLDER }/{file_key}"
+        file.save(path)
+        
+        #creating object
+        post = {
+            'post_id': uuid.uuid4().hex,
+            'user_id': session['user_id'], #dictionary w/key
+            'post_title': post_title,
+            'post_img_key': file_key,
+            'post_description': post_description,
+            'post_created_at': int(time.time())+3600
+        }
+        
         db, cursor = config.db()
-        q = "SELECT * FROM users WHERE user_email = %s"
-        cursor.execute(q, (user_email,))
-        row = cursor.fetchone()
-        if not row:
-            return f"""<browser mix-update="#user_email_error">Available</browser>"""
-        return f"""<browser mix-update="#user_email_error">Email is already registered</browser>""", 400
-    except Exception as ex:
-        ic(ex)
-        if "-------error-------------- user_email" in str(ex):
-            return f"""<browser mix-update="#user_email_error">Invalid email</browser>""", 400
-        return f"""<browser mix-update="#user_email_error">whoops</browser>""", 500
-    finally:
-        if "cursor" in locals(): cursor.close()
-        if "db" in locals(): db.close()
-
-#######################################################
-
-@app.get("/items")
-def show_items():
-    try:
-        return render_template("index.html")
+        q = """
+        INSERT INTO posts (
+            post_id,
+            user_id,
+            post_title,
+            post_img_key,
+            post_description,
+            post_created_at
+        ) VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        
+        cursor.execute(q, (
+            post["post_id"],
+            post["user_id"],
+            post["post_title"],
+            post["post_img_key"],
+            post["post_description"],
+            post["post_created_at"]
+        ))
+        
+        return render_template("index.html", post=post)
+    
     except Exception as ex: 
         ic(ex)
-        return "whoops...", 500
-
+        return jsonify({"Msg": "server error", "error":str(ex)}), 500 
+    finally: 
+        if 'cursor' in locals(): cursor.close()
+        if 'db' in locals(): db.close()
 
 
