@@ -122,3 +122,17 @@ def validate_user_email():
     return user_email
 
 ###################_____VALIDATION FOR USER EMAIL_____#
+
+
+def validate_recipie_title():
+    recipie_title = request.form.get("recipie_title").strip()
+    return recipie_title
+
+
+def validate_recipie_ingridients():
+    recipie_title = request.form.get("recipie_ingridients").strip()
+    return recipie_title
+
+def validate_recipie_measures():
+    recipie_title = request.form.get("recipie_measures").strip()
+    return recipie_title

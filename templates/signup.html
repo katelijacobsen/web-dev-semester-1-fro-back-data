@@ -12,10 +12,9 @@
       id="user_username"
       aria-describedby="signup-error"
       mix-validate="{{ config.REGEX_USER_NAME }}"
-      mix-post="/api-check-username"
     />
-    <span id="signup-error" class="error-msg" aria-live="polite"
-      >Error Message</span
+    <span id="username-error" class="error-msg" aria-live="polite"
+      ></span
     >
   </div>
   <div class="field">
@@ -27,8 +26,8 @@
       aria-describedby="signup-error"
       mix-validate="{{ config.REGEX_USER_NAME }}"
     />
-    <span id="signup-error" class="error-msg" aria-live="polite"
-      >Error Message</span
+    <span id="user-first-name-error" class="error-msg" aria-live="polite"
+      ></span
     >
   </div>
   <div class="field">
@@ -40,8 +39,8 @@
       aria-describedby="signup-error"
       mix-validate="{{ config.REGEX_USER_NAME }}"
     />
-    <span id="signup-error" class="error-msg" aria-live="polite"
-      >Error Message</span
+    <span id="user-last-name-error" class="error-msg" aria-live="polite"
+      ></span
     >
   </div>
 
@@ -54,7 +53,7 @@
       aria-describedby="signup-error"
     />
     <span id="signup-error" class="error-msg" aria-live="polite"
-      >Error Message</span
+      ></span
     >
   </div>
 
@@ -65,10 +64,9 @@
       name="user_email"
       id="user_email"
       aria-describedby="signup-error"
-      mix-post="/api-check-email"
     />
-    <span id="signup-error" class="error-msg" aria-live="polite"
-      >Error Message</span
+    <span id="email-error" class="error-msg" aria-live="polite"
+      ></span
     >
   </div>
 
@@ -80,8 +78,8 @@
       id="user_tel"
       aria-describedby="signup-error"
     />
-    <span id="signup-error" class="error-msg" aria-live="polite"
-      >Error Message</span
+    <span id="phone-error" class="error-msg" aria-live="polite"
+      ></span
     >
   </div>
 
@@ -95,7 +93,7 @@
       required
     />
     <span id="signup-error" class="error-msg" aria-live="polite"
-      >Error Message</span
+      ></span
     >
   </div>
 
@@ -109,10 +107,10 @@
       required
     />
     <span id="signup-error" class="error-msg" aria-live="polite"
-      >Error Message</span
+      ></span
     >
   </div>
   <button>Sign up</button>
-  <div id="tooltip"></div>
+  <div id="tip"></div>
 </form>
 {% endblock content%}

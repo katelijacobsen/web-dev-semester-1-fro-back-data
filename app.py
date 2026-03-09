@@ -1,5 +1,6 @@
 from flask import Flask, flash, render_template, request, jsonify, g, session, redirect, url_for
 from flask_session import Session
+from werkzeug.security import generate_password_hash, check_password_hash
 from icecream import ic
 
 import config
@@ -19,7 +20,7 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1000 * 1000
 
-Session(app)
+Session(app) #what the hell was this used for again if we use session and not Session?
 
 
 #ic( int(time.time())+3600)
@@ -104,11 +105,12 @@ def login_user():
         #query
         q = "SELECT * FROM users WHERE user_email = %s"
         
+        # get the user from the db
         cursor.execute(q, (given_email,))
         user = cursor.fetchone()
         
         #error handling if login doesn't match 
-        if not user or not given_password(user["given_password"], given_password): 
+        if not user or not check_password_hash(user["given_password"], given_password): 
             error_msg = "The email or password you entered is incorrect"
             tip = render_template("/tip.html", msg=error_msg)
             return f"""<browser mix-after-begin="#tooltip">{tip}</browser> """, 400
@@ -177,6 +179,9 @@ def check_user():
         if "db" in locals(): db.close() 
 
 #######################################################
+
+
+
 #######################################################
 
 @app.post("/api-create-user")
@@ -190,34 +195,48 @@ def create_user():
         user_phone = request.form.get("user_tel")
         country = request.form.get("country")
         user_password = config.validate_user_password()
+        user_hashed_password = generate_password_hash(user_password)
         user_created_at = int(time.time())+3600
         
         db, cursor = config.db()
-        q = "INSERT INTO users (user_id, user_username, user_first_name, user_last_name, user_email, user_phone, country, user_password, user_created_at) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        cursor.execute(q, (user_id, user_username, user_first_name, user_last_name, user_email, user_phone, country, user_password, user_created_at))
+        q = "INSERT INTO users (user_id, user_username, user_first_name, user_last_name, user_email, user_phone, country, user_hashed_password, user_created_at) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(q, (user_id, user_username, user_first_name, user_last_name, user_email, user_phone, country, user_hashed_password, user_created_at))
         db.commit()
         
-        tip = render_template("tooltip.html", msg="Sign up complete")
-        return f"""<browser mix-update="#tooltip">{tip}</browser>"""
+        signup = render_template("signup.html", config=config)
+        
+        # Send this user to login when sign up
+        return f"""<browser mix-replace="form">{signup}</browser>
+                <browser mix-redirect="/login"></browser>"""
         
     except Exception as ex:
+        
         ic(ex)
+        
+        
         if "Duplicate entry" in str(ex) and "user_username" in str(ex):
-            return f"""<browser mix-update="#user_">Username already taken</browser>""", 400
+            return f"""<browser mix-update="#username-error">Username already taken</browser>""", 400
+        
+        
         if "Duplicate entry" in str(ex) and "user_email" in str(ex):
-            return f"""<browser mix-update="#user_email_error">Email already taken</browser>""", 400
+            return f"""<browser mix-update="#email-error">Email already taken</browser>""", 400
+        
+        
         msg = str(ex) if ex.args else "System error"
-        return f"""<browser mix-update="#tooltip">{msg}</browser>""", 500
+        return f"""<browser mix-update="#tip">{msg}</browser>""", 500
+    
+    
     finally: 
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
 #######################################################
 
-@app.post('/api-create-post')
+
+@app.post('/api-create-recipie')
 def upload_file():
     try:
-        post_title = request.form.get('post_title')
+        post_title = request.form.get('post_title') 
         post_description = request.form.get('post_description')
         
         
@@ -266,4 +285,32 @@ def upload_file():
         if 'cursor' in locals(): cursor.close()
         if 'db' in locals(): db.close()
 
+#######################################################
 
+@app.delete('/api-delete-recipie')
+def delete_post(recipie_id):
+    try:
+        cursor, db = config.db()
+        q = ""
+        cursor.execute(q, (recipie_id))
+        db.commit()
+    except Exception as ex:
+        ic(ex)
+        return "haha whoops", 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'db' in locals(): db.close()
+
+
+@app.patch('/')
+def update_whatever():
+    try:
+        pass
+        cursor, db = config.db()
+        q = ""
+    except Exception as ex: 
+        ic(ex)
+        return "haha whoops", 500
+    finally: 
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
