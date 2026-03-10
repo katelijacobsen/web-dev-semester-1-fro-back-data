@@ -62,8 +62,8 @@ def login():
     try:
         user = session.get("user", "")
         if not user: #if they are not login then show login page
-            return render_template("login.html")
-        return redirect("profile") #show profile for users that are logged in
+            return render_template("login.html", user=user, config=config)
+        return redirect("/login") #show profile for users that are logged in
     except Exception as ex:
         ic(ex)
         return "whoops" # of course "best case" scenario :^)
@@ -81,6 +81,62 @@ def logout():
 def create_post():
     return render_template("create.html")
 
+
+
+@app.post("/api-login")
+def api_login():
+    try:
+        user_email = config.validate_user_email()
+        user_password = config.validate_user_password()
+
+        #app.logger.info('%s %s', given_password, given_email) #screw you flask
+        
+        # get db
+        db, cursor = config.db()
+        #query
+        q = "SELECT * FROM users WHERE user_email = %s"
+        
+        # get the user from the db
+        cursor.execute(q, (user_email,))
+        user = cursor.fetchone()
+        
+        #error handling if login doesn't match 
+        if not user or not check_password_hash(user["user_password"], user_password): 
+            error_msg = "The email or password you entered is invalid"
+            tip = render_template("tip.html", status="error", msg=error_msg)
+            return f"""<browser mix-after-begin="#tip">{tip}</browser> """, 400
+        
+        user.pop("user_password")
+        session["user"] = user
+        
+        return f"""<browser mix-redirect="/login"></browser>"""
+    
+    except Exception as ex: 
+        ic(ex)
+        
+        if "INVALID_EMAIL" in str(ex):
+            error_msg = f"nope email"
+            tip = render_template("tip.html", status="error", msg=error_msg)
+            return f"""<browser mix-after-begin="#tip">{tip}</browser> """, 400
+        
+        
+        if "INVALID_PASSWORD" in str(ex):
+            error_msg = f"nope password"
+            tip = render_template("tip.html", status="error", msg=error_msg)
+            return f"""<browser mix-after-begin="#tip">{tip}</browser> """, 400
+            
+        
+        # Of course best case scenario :)
+        error_msg = "System under maintenance"
+        tip = render_template("tip.html", status="error", msg = error_msg)        
+        return f"""<browser mix-redirect="/login">{tip}</browser>""", 500
+    
+    
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
+
 ########################ERROR HANDLER#########################
 
 #@app.errorhandler(404)
@@ -92,53 +148,6 @@ def create_post():
 
 ####################### LOGIN #########################
 
-@app.post("/api-login")
-def login_user():
-    try:
-        given_email = config.validate_user_email()
-        given_password = config.validate_user_email()
-
-        #app.logger.info('%s %s', given_password, given_email) #screw you flask
-        
-        # get db
-        db, cursor = config.db()
-        #query
-        q = "SELECT * FROM users WHERE user_email = %s"
-        
-        # get the user from the db
-        cursor.execute(q, (given_email,))
-        user = cursor.fetchone()
-        
-        #error handling if login doesn't match 
-        if not user or not check_password_hash(user["given_password"], given_password): 
-            error_msg = "The email or password you entered is incorrect"
-            tip = render_template("/tip.html", msg=error_msg)
-            return f"""<browser mix-after-begin="#tooltip">{tip}</browser> """, 400
-        
-        user.pop("given_password")
-        session["user"] = user
-        
-        return f"""<browser mix-redirect="/profile"></browser>"""
-    
-    except Exception as ex: 
-        ic(ex)
-        
-        if not user or not given_password(user["given_password"], given_password): 
-            error_msg = "The email or password you entered is incorrect"
-            tip = render_template("/tip.html", msg=error_msg)
-            return f"""<browser mix-after-begin="#tooltip">{tip}</browser> """, 400
-        
-        
-        
-        # Of course best case scenario :)
-        error_msg = "System under maintenance"
-        tip = render_template("tip.html", status="error", msg = error_msg)        
-        return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 500
-    
-    
-    finally:
-        if "cursor" in locals(): cursor.close()
-        if "db" in locals(): db.close()
 
 #######################################################
 # Checking if the I'm connected to the db

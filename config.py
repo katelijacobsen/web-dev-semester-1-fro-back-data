@@ -8,11 +8,12 @@ import re # Regex
 USER_NAME_MIN = 2 #for this project I'll only use one type for validating names
 USER_NAME_MAX = 20 #I'm too lazy to write more
 USER_PASSWORD_MIN = 8
+USER_PASSWORD_MAX = 20
 
 #__fuuuuuusion
 REGEX_USER_EMAIL = "^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$"
 REGEX_USER_NAME = f"^.{{{USER_NAME_MIN},{USER_NAME_MAX}}}$"
-REGEX_USER_PASSWORD = f"^.{{{USER_PASSWORD_MIN},}}$"
+REGEX_USER_PASSWORD = f"^.{{{USER_PASSWORD_MIN},{USER_PASSWORD_MAX}}}$"
 ###############_____REGEX CONSTS_____#
 
 
@@ -94,14 +95,11 @@ def validate_user_username():
 #_____VALIDATION FOR USER PASSWORD_____###############
 
 def validate_user_password():
-    user_password = request.form.get("user_password").strip()
-    confirm_password = request.form.get("confirm_password").strip()
+    user_password = request.form.get("user_password", "").strip()
     # if user didn't add password
-    if not user_password or not confirm_password:
-        raise Exception("Password and confirmation are required")
-    #if passwords are not the same
-    if user_password != confirm_password:
-        raise Exception("Passwords do not match")
+    if not user_password:
+        raise Exception("INVALID_PASSWORD user_password")
+    
     #if password does not live up to the expectations
     if not re.match(REGEX_USER_PASSWORD, user_password):
         raise Exception(f"Password must be at least {USER_PASSWORD_MIN} characters long")
@@ -110,19 +108,16 @@ def validate_user_password():
 
 ###############_____VALIDATION FOR USER PASSWORD_____#
 
-
-
 #_____VALIDATION FOR USER EMAIL_____###################
 
 
 def validate_user_email():
     user_email = request.form.get("user_email", "").strip() # use strip() to avoid spacing from left- and right side of the input
     if not re.match(REGEX_USER_EMAIL, user_email):
-        return Exception("whoops user_email")
+        raise Exception("INVALID_EMAIL user_password")
     return user_email
 
 ###################_____VALIDATION FOR USER EMAIL_____#
-
 
 def validate_recipie_title():
     recipie_title = request.form.get("recipie_title").strip()
