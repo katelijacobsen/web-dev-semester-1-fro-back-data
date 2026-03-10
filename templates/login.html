@@ -2,7 +2,7 @@
 {% block header %} <h1>{% block title%} Log in {% endblock title %}</h1> {% endblock header %}
 
 {% block content %}
-<form action="/api-login" method="post" id="signup">
+<form mix-post="/api-login" id="signup">
   {% if error %}
   <span>{{error}}</span>
   {% endif %}

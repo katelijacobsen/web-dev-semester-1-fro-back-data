@@ -5,7 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}" />
-    <scrip src="/static/app.ts" defer></scrip>
+    <scrip src="/static/app.js" defer></scrip>
     <title>{% block title %}{% endblock title %}</title>
     {% endblock head %}
   </head>
@@ -21,7 +21,7 @@
             <a href="/create">Create Post</a>
           </li>
           <li>
-            <span>{{ g.user['user_name']}}</span>
+            <span>{{ g.user['user_username']}}</span>
           </li>
           <li>
             <a class="logout-btn" href="logout"> Log Out </a>

@@ -60,15 +60,15 @@ def signup_post():
 @app.get("/login")
 def login():
     try:
-        user = session.get("user", "")
+        user = session.get("user_id", "")
         if not user: #if they are not login then show login page
             return render_template("login.html", user=user, config=config)
-        return redirect("/login") #show profile for users that are logged in
+        return redirect("/profile") #show profile for users that are logged in
     except Exception as ex:
         ic(ex)
         return "whoops" # of course "best case" scenario :^)
 
-@app.route('/logout.html')
+@app.route('/logout')
 def logout():
     try:
         session.clear()
@@ -82,56 +82,51 @@ def create_post():
     return render_template("create.html")
 
 
-
 @app.post("/api-login")
 def api_login():
     try:
         user_email = config.validate_user_email()
         user_password = config.validate_user_password()
-
-        #app.logger.info('%s %s', given_password, given_email) #screw you flask
-        
-        # get db
         db, cursor = config.db()
-        #query
-        q = "SELECT * FROM users WHERE user_email = %s"
         
-        # get the user from the db
+        q = "SELECT * FROM users WHERE user_email = %s"
         cursor.execute(q, (user_email,))
+        
         user = cursor.fetchone()
         
-        #error handling if login doesn't match 
-        if not user or not check_password_hash(user["user_password"], user_password): 
-            error_msg = "The email or password you entered is invalid"
+        if not user: 
+            error_msg = "Invalid credentials 1"
             tip = render_template("tip.html", status="error", msg=error_msg)
-            return f"""<browser mix-after-begin="#tip">{tip}</browser> """, 400
+            return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
+        
+        if not check_password_hash(user["user_password"], user_password):
+            error_msg = "Invalid credentials 2"
+            tip = render_template("tip.html", status="error", msg=error_msg)
+            return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
         
         user.pop("user_password")
-        session["user"] = user
+        session["user_id"] = user["user_id"]
         
-        return f"""<browser mix-redirect="/login"></browser>"""
-    
+        return f"""<browser mix-redirect="/profile"></browser>"""    
+            
     except Exception as ex: 
         ic(ex)
         
-        if "INVALID_EMAIL" in str(ex):
-            error_msg = f"nope email"
+        if "company_exception user_email" in str(ex):
+            error_msg = "Invalid credentials 02"
             tip = render_template("tip.html", status="error", msg=error_msg)
-            return f"""<browser mix-after-begin="#tip">{tip}</browser> """, 400
+            return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
         
         
-        if "INVALID_PASSWORD" in str(ex):
-            error_msg = f"nope password"
+        if "company_exception user_password" in str(ex):
+            error_msg = "Invalid credentials 02"
             tip = render_template("tip.html", status="error", msg=error_msg)
-            return f"""<browser mix-after-begin="#tip">{tip}</browser> """, 400
+            return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
             
         
-        # Of course best case scenario :)
-        error_msg = "System under maintenance"
-        tip = render_template("tip.html", status="error", msg = error_msg)        
-        return f"""<browser mix-redirect="/login">{tip}</browser>""", 500
-    
-    
+        error_msg = "Invalid credentials"
+        tip = render_template("tip.html", status="error", msg=error_msg)
+        return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 500
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
@@ -144,11 +139,6 @@ def api_login():
 #    return render_template("/"), 404
 
 #######################################################
-
-
-####################### LOGIN #########################
-
-
 #######################################################
 # Checking if the I'm connected to the db
 @app.get("/users")
@@ -208,7 +198,7 @@ def create_user():
         user_created_at = int(time.time())+3600
         
         db, cursor = config.db()
-        q = "INSERT INTO users (user_id, user_username, user_first_name, user_last_name, user_email, user_phone, country, user_hashed_password, user_created_at) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        q = "INSERT INTO users (user_id, user_username, user_first_name, user_last_name, user_email, user_phone, country, user_password, user_created_at) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
         cursor.execute(q, (user_id, user_username, user_first_name, user_last_name, user_email, user_phone, country, user_hashed_password, user_created_at))
         db.commit()
         
@@ -296,30 +286,13 @@ def upload_file():
 
 #######################################################
 
-@app.delete('/api-delete-recipie')
-def delete_post(recipie_id):
+@app.get("/profile")
+@config.no_cache
+def show_profile():
     try:
-        cursor, db = config.db()
-        q = ""
-        cursor.execute(q, (recipie_id))
-        db.commit()
+        user = session.get("user_id", "")
+        if not user: return redirect("/login")
+        return render_template("profile.html", user=user, config=config)
     except Exception as ex:
         ic(ex)
-        return "haha whoops", 500
-    finally:
-        if 'cursor' in locals(): cursor.close()
-        if 'db' in locals(): db.close()
-
-
-@app.patch('/')
-def update_whatever():
-    try:
-        pass
-        cursor, db = config.db()
-        q = ""
-    except Exception as ex: 
-        ic(ex)
-        return "haha whoops", 500
-    finally: 
-        if "cursor" in locals(): cursor.close()
-        if "db" in locals(): db.close()
+        return "ups"

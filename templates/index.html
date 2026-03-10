@@ -4,7 +4,7 @@
 {% block content%}
 
 {% if g.user %}
-<p>Hej med dig, {{ g.user['user_name']}}</p>
+<p>Hej med dig, {{ g.user['user_username']}}</p>
 {% else %}
 <p>Velkommen til platformen, log in eller sign up hvis du er ny</p>
 {% endif %}
