@@ -6,21 +6,53 @@
     enctype="multipart/form-data"
     id="create_post"
   >
-    <div class="post-title">
-      <label for="post_title">Title</label>
-      <input name="post_title" id="title_destination" type="text" />
+    <div class="field-group">
+      <!-- Main info -->
+      <div>
+        <label for="recipie_title">Title</label>
+        <input name="recipie_title" id="title_destination" type="text" />
+      </div>
+      <div>
+        <label for="recipie_prep_time">Prep Time</label>
+        <input name="recipie_prep_time" id="title_destination" type="text" />
+      </div>
+      <div>
+        <label for="recipie_cook_time">Cook Time</label>
+        <input name="recipie_cook_time" id="title_destination" type="text" />
+      </div>
     </div>
 
+    <!-- Upload Image -->
     <div class="field">
-      <label for="post_description">Description</label>
-      <textarea name="post_description" id="post_description" rows="10"></textarea>
-    </div>
-    <div class="field">
-      <label for="post_img">Description</label>
-      <input name="file" type="file" accept="image/png, image/jpeg"/>
+      <label for="recipie_img">Photo</label>
+      <input name="file" type="file" accept="image/png, image/jpeg" />
     </div>
 
-    <button type="submit">Share</button>
+
+    <!-- Description -->
+    <div class="field-group">
+      <label for="recipie_description">Description</label>
+      <textarea
+        name="recipie_description"
+        id="recipie_description"
+        rows="10"
+      ></textarea>
+    </div>
+
+    <!-- Section to give the user more control over the layout -->
+    <div class="field-group">
+      <h2>Instructions</h2>
+      <div id="intructions_section">
+        <button type="button" id="add_btn">Add</button>
+        <ol id="intructions_container">
+            <!-- Add dynamic content here -->
+        </ol>
+      </div>
+    </div>
+
+
+
+    <button>Share</button>
   </form>
 </article>
 {% endblock content %}

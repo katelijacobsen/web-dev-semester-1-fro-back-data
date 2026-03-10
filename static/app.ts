@@ -1,15 +1,44 @@
-// source:  https://medium.com/@dearpermatasari18/designing-input-fields-with-floating-labels-html-css-javascript-9a37bc81216d
-const fields = document.querySelectorAll('.field input');
+"use strict";
+
+interface Step {
+  id: number;
+  content: string;
+}
+
+const addBtn = document.querySelector<HTMLButtonElement>("#add_btn");
+const list = document.querySelector<HTMLOListElement>("#intructions_container");
 
 
-// Default State for the input fields
-fields.forEach(input => {
-    input.addEventListener('focus', () => {
-        input.parentElement?.classList.add('active')
-    })
-    input.addEventListener('blur', () => {
-        input.parentElement?.classList.remove('active')
-    })
-})
+// Function to create Element
+function createElement(step: Step):any { //adding step as a param
+    const li = document.createElement("li");
+    li.className = "step-element";
 
+
+    const no = document.createElement("span");
+    no.className = "step_no";
+    no.textContent = String(step.id);
+
+
+    const field = document.createElement("input");
+    field.type = "text";
+    field.value = step.content;
+    field.placeholder = "Add intructions...";
+
+
+    const rmv = document.createElement("button");
+    rmv.className = "rmv_btn";
+    rmv.type = "button";
+
+    rmv.addEventListener("click", () => rmvStep(li))
+}
+
+
+//Remove the element
+function rmvStep(element:any):void {
+    element.remove();
+}
+
+// Add Step
+//addBtn.addEventListener("click", addStep());
 
