@@ -114,7 +114,7 @@ def validate_user_password():
 def validate_user_email():
     user_email = request.form.get("user_email", "").strip() # use strip() to avoid spacing from left- and right side of the input
     if not re.match(REGEX_USER_EMAIL, user_email):
-        raise Exception("INVALID_EMAIL user_password")
+        raise Exception("INVALID_EMAIL user_email")
     return user_email
 
 ###################_____VALIDATION FOR USER EMAIL_____#

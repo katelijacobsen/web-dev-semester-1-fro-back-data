@@ -60,10 +60,10 @@ def signup_post():
 @app.get("/login")
 def login():
     try:
-        user = session.get("user_id", "")
+        user = session.get("user", "")
         if not user: #if they are not login then show login page
-            return render_template("login.html", user=user, config=config)
-        return redirect("/profile") #show profile for users that are logged in
+            return render_template("login.html")
+        return redirect("profile") #show profile for users that are logged in
     except Exception as ex:
         ic(ex)
         return "whoops" # of course "best case" scenario :^)
@@ -81,6 +81,16 @@ def logout():
 def create_post():
     return render_template("create.html")
 
+########################ERROR HANDLER#########################
+
+#@app.errorhandler(404)
+#def page_not_found(error):
+#    return render_template("/"), 404
+
+#######################################################
+
+
+####################### LOGIN #########################
 
 @app.post("/api-login")
 def api_login():
@@ -88,17 +98,21 @@ def api_login():
         user_email = config.validate_user_email()
         user_password = config.validate_user_password()
         db, cursor = config.db()
-        
+
+
         q = "SELECT * FROM users WHERE user_email = %s"
+        
         cursor.execute(q, (user_email,))
         
         user = cursor.fetchone()
+
         
         if not user: 
-            error_msg = "Invalid credentials 1"
+            error_msg = "Invalid credentials 001"
             tip = render_template("tip.html", status="error", msg=error_msg)
             return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
         
+        app.logger.info('expected = "%s", given = "%s" ________USER PASSWORD', user["user_password"], user_password)
         if not check_password_hash(user["user_password"], user_password):
             error_msg = "Invalid credentials 2"
             tip = render_template("tip.html", status="error", msg=error_msg)
@@ -107,7 +121,7 @@ def api_login():
         user.pop("user_password")
         session["user_id"] = user["user_id"]
         
-        return f"""<browser mix-redirect="/profile"></browser>"""    
+        return f"""<browser mix-redirect="/"></browser>"""    
             
     except Exception as ex: 
         ic(ex)
@@ -130,15 +144,6 @@ def api_login():
     finally:
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
-
-
-########################ERROR HANDLER#########################
-
-#@app.errorhandler(404)
-#def page_not_found(error):
-#    return render_template("/"), 404
-
-#######################################################
 #######################################################
 # Checking if the I'm connected to the db
 @app.get("/users")
@@ -192,14 +197,14 @@ def create_user():
         user_last_name = config.validate_user_last_name()
         user_email = request.form.get("user_email")
         user_phone = request.form.get("user_tel")
-        country = request.form.get("country")
+        user_country_id = request.form.get("user_country_id")
         user_password = config.validate_user_password()
         user_hashed_password = generate_password_hash(user_password)
         user_created_at = int(time.time())+3600
         
         db, cursor = config.db()
-        q = "INSERT INTO users (user_id, user_username, user_first_name, user_last_name, user_email, user_phone, country, user_password, user_created_at) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        cursor.execute(q, (user_id, user_username, user_first_name, user_last_name, user_email, user_phone, country, user_hashed_password, user_created_at))
+        q = "INSERT INTO users (user_id, user_username, user_first_name, user_last_name, user_email, user_phone, user_country_id, user_password, user_created_at) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        cursor.execute(q, (user_id, user_username, user_first_name, user_last_name, user_email, user_phone, user_country_id, user_hashed_password, user_created_at))
         db.commit()
         
         signup = render_template("signup.html", config=config)
@@ -239,7 +244,7 @@ def upload_file():
         post_description = request.form.get('post_description')
         
         
-        file = request.files['file']
+        file = request.files['recipe_file']
         file_key = f"{uuid.uuid4().hex}_{file.filename}"
         path = f"{UPLOAD_FOLDER }/{file_key}"
         file.save(path)
@@ -286,13 +291,34 @@ def upload_file():
 
 #######################################################
 
-@app.get("/profile")
-@config.no_cache
-def show_profile():
+@app.delete('/api-delete-recipie')
+def delete_post(recipie_id):
     try:
-        user = session.get("user_id", "")
-        if not user: return redirect("/login")
-        return render_template("profile.html", user=user, config=config)
+        cursor, db = config.db()
+        q = ""
+        cursor.execute(q, (recipie_id))
+        db.commit()
     except Exception as ex:
         ic(ex)
-        return "ups"
+        return "haha whoops", 500
+    finally:
+        if 'cursor' in locals(): cursor.close()
+        if 'db' in locals(): db.close()
+
+
+@app.patch('/')
+def update_recipie():
+    try:
+        #TO DO VALIDATE SOME DATA
+        cursor, db = config.db()
+        #QUERY
+        q = ""
+    except Exception as ex: 
+        ic(ex)
+        #HANDLING ERRORRTYPES 
+        return "haha whoops", 500
+    finally: 
+        # Worst handling scenarious
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+
