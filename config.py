@@ -142,7 +142,7 @@ def validate_user_email():
 #_____VALIDATION FOR CREATING RECIPE_____###################
 
 def validate_recipe_title():
-    recipe_title = request.form.get("recipie_title", "").strip()
+    recipe_title = request.form.get("recipe_title", "").strip()
     if not re.match(REGEX_RECIPE_TITLE, recipe_title):
         raise Exception("foodhead recipe_title")
     return recipe_title
@@ -152,6 +152,7 @@ def validate_recipe_description():
     recipe_description = request.form.get("recipe_description", "").strip()
     if not re.match( REGEX_RECIPE_DESCRIPTION ,recipe_description):
         raise Exception("foodheadn recipe_description")
+    return recipe_description
 
 
 def validation_recipe_servings():

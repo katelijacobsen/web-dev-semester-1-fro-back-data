@@ -302,13 +302,16 @@ def create_recipe():
             post["recipe_description"],
             post["recipe_ingridients"],
             post["recipe_instructions"],
+            post["recipe_cook_time"],
+            post["recipe_prep_time"],
             post["recipe_servings"],
             post["recipe_created_at"]
         ))
-        
+
+        db.commit()        
         return render_template("index.html", post=post)
     
-    except Exception as ex: 
+    except Exception as ex:
         ic(ex)
         
         if "foodhead_exception recipe_title" in str(ex):
@@ -334,12 +337,12 @@ def create_recipe():
 
 #######################################################
 
-@app.delete('/api-delete-recipie')
-def delete_post(recipie_id):
+@app.delete('/api-delete-recipe')
+def delete_post(recipe_id):
     try:
         cursor, db = config.db()
         q = ""
-        cursor.execute(q, (recipie_id))
+        cursor.execute(q, (recipe_id))
         db.commit()
     except Exception as ex:
         ic(ex)
@@ -350,7 +353,7 @@ def delete_post(recipie_id):
 
 
 @app.patch('/')
-def update_recipie():
+def update_recipe():
     try:
         #TO DO VALIDATE SOME DATA
         cursor, db = config.db()
