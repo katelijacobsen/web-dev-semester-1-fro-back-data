@@ -288,14 +288,14 @@ def create_recipe():
             )
 
         # Insert instructions
-        instructions = request.form.getlist("instructions")
+        instructions = request.form.getlist("instruction")
         for step_number, instruction in enumerate(instructions, start=1):
             instruction_id = uuid.uuid4().hex
             cursor.execute(
                 "INSERT INTO instructions (instruction_id, recipe_fk, instruction, instruction_step_number) VALUES (%s, %s, %s, %s)",
                 (instruction_id, recipe_id, instruction.strip(), step_number)
             )
-            
+
         ic(instructions)
 
         db.commit()

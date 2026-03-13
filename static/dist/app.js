@@ -1,18 +1,18 @@
 "use strict";
 const instructionsList = document.querySelector("#instructions-container");
-const ingredientsList = document.querySelector("#ingredients-container");
-function addIngredientHTML() {
+const ingridientsList = document.querySelector("#ingridients-container");
+function addingridientHTML() {
     return `
-    <li class="ingredient-item">
+    <li class="ingridient-item">
       <div>
-        <label for="ingredient"></label>
+        <label for="recipe_ingridient"></label>
         <input
           type="text"
-          name="ingridient_name"
+          name="recipe_ingridient"
           placeholder="e.g. butter"
         />
         <input type="text" name="ingridient_amount" placeholder="e.g. 170" />
-        <select name="ingredient_unit">
+        <select name="recipe_ingridient_unit">
           <option value="">unit</option>
           <option>g</option>
           <option>kg</option>
@@ -22,14 +22,14 @@ function addIngredientHTML() {
           <option>tsp</option>
           <option>tbsp</option>
         </select>
-        <button type="button" onclick="rmvIngredient(this)">Remove</button>
+        <button type="button" onclick="rmvingridient(this)">Remove</button>
       </div>
     </li>
   `;
 }
 function createStepHTML() {
     return `
-    <div class="drag-tool" aria-label="drag to reorder">DRAG ME</div>
+    <div id="instruction-step" class="drag-tool" aria-label="drag & drop">DRAG ME</div>
     <label class="step-label"></label>
     <textarea
       name="instruction"
@@ -40,14 +40,14 @@ function createStepHTML() {
     </div>
   `;
 }
-function addIngredient() {
+function addingridient() {
     const li = document.createElement("li");
-    li.innerHTML = addIngredientHTML();
-    ingredientsList?.appendChild(li);
+    li.innerHTML = addingridientHTML();
+    ingridientsList?.appendChild(li);
 }
-function rmvIngredient(btn) {
-    if (ingredientsList && ingredientsList.children.length > 1) {
-        btn.closest(".ingredient-item")?.remove();
+function rmvingridient(btn) {
+    if (ingridientsList && ingridientsList.children.length > 1) {
+        btn.closest(".ingridient-item")?.remove();
     }
 }
 function addStep() {

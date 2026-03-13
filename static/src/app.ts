@@ -39,7 +39,7 @@ function createStepHTML(): string {
     <div id="instruction-step" class="drag-tool" aria-label="drag & drop">DRAG ME</div>
     <label class="step-label"></label>
     <textarea
-      name="instructions"
+      name="instruction"
       placeholder="Add Instruction here..."
     ></textarea>
     <div class="step-actions">
