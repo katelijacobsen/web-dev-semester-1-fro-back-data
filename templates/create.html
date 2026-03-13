@@ -1,8 +1,8 @@
 {% extends 'base.html' %} {% block content %}
 <article>
-  <h1>Create your destination</h1>
+  <h1 id="tip" class="tip">{{ tip }}</h1>
   <form
-    mix-post="/api-create-post"
+    mix-post="/api-create-recipe"
     enctype="multipart/form-data"
     id="create_post"
   >
@@ -29,7 +29,7 @@
     <!-- Upload Image -->
     <div class="field">
       <label for="recipe_img">Photo</label>
-      <input name="recipe_file" type="recipe_file" accept="image/png, image/jpeg" />
+      <input name="recipe_file" type="file" accept="image/png, image/jpeg" />
     </div>
 
     <!-- Description -->
@@ -45,7 +45,6 @@
     <!-- Ingredients -->
     <div class="field-group">
       <h2>Ingredients</h2>
-      <!-- FIX: Removed duplicate id attribute, corrected id to match JS selector -->
       <ul id="ingredients-container">
       </ul>
       <button type="button" onclick="addIngredient()">Add</button>
@@ -54,7 +53,6 @@
     <!-- Instructions -->
     <div class="field-group">
       <h2>Instructions</h2>
-      <!-- FIX: <button> was inside <ol> which is invalid HTML — moved outside -->
       <ol id="instructions-container"></ol>
       <button type="button" class="btn-add" onclick="addStep()">Add</button>
     </div>

@@ -10,10 +10,28 @@ USER_NAME_MAX = 20 #I'm too lazy to write more
 USER_PASSWORD_MIN = 8
 USER_PASSWORD_MAX = 20
 
+RECIPE_TITLE_MIN = 2
+RECIPE_TITLE_MAX = 50
+
+RECIPE_DESCRIPTION_MIN = 50
+RECIPE_DESCRIPTION_MAX = 500
+
+RECIPE_INSTRUCTIONS_MIN = 100
+RECIPE_INSTRUCTIONS_MAX = 500
+
+RECIPE_INGRIDIENTS_MAX = 30
+
+RECIPE_STEPS_MAX = 30
+
+
 #__fuuuuuusion
 REGEX_USER_EMAIL = "^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$"
 REGEX_USER_NAME = f"^.{{{USER_NAME_MIN},{USER_NAME_MAX}}}$"
 REGEX_USER_PASSWORD = f"^.{{{USER_PASSWORD_MIN},{USER_PASSWORD_MAX}}}$"
+REGEX_RECIPE_TITLE = f"^.{{{RECIPE_TITLE_MIN},{RECIPE_TITLE_MAX}}}"
+REGEX_RECIPE_INSTRUCTIONS = f"^.{{{RECIPE_INSTRUCTIONS_MIN},{RECIPE_INSTRUCTIONS_MAX}}}"
+REGEX_RECIPE_DESCRIPTION = f"^.{{{RECIPE_DESCRIPTION_MIN},{RECIPE_DESCRIPTION_MAX}}}"
+REGEX_RECIPE_SERVINGS = f"^(10|[1-9])$"
 ###############_____REGEX CONSTS_____#
 
 
@@ -119,15 +137,33 @@ def validate_user_email():
 
 ###################_____VALIDATION FOR USER EMAIL_____#
 
-def validate_recipie_title():
-    recipie_title = request.form.get("recipie_title").strip()
-    return recipie_title
 
 
-def validate_recipie_ingridients():
-    recipie_title = request.form.get("recipie_ingridients").strip()
-    return recipie_title
+#_____VALIDATION FOR CREATING RECIPE_____###################
 
-def validate_recipie_measures():
-    recipie_title = request.form.get("recipie_measures").strip()
-    return recipie_title
+def validate_recipe_title():
+    recipe_title = request.form.get("recipie_title", "").strip()
+    if not re.match(REGEX_RECIPE_TITLE, recipe_title):
+        raise Exception("foodhead recipe_title")
+    return recipe_title
+
+
+def validate_recipe_description():
+    recipe_description = request.form.get("recipe_description", "").strip()
+    if not re.match( REGEX_RECIPE_DESCRIPTION ,recipe_description):
+        raise Exception("foodheadn recipe_description")
+
+
+def validation_recipe_servings():
+    recipe_servings = request.form.get("recipe_servings", "").strip()
+    if not re.match(REGEX_RECIPE_SERVINGS, recipe_servings):
+        raise Exception("foodhead recipe_servings")
+    return recipe_servings
+
+def validation_recipe_instructions():
+    recipe_instruction = request.form.get("recipe_instruction", "").strip()
+    if not re.match(REGEX_RECIPE_INSTRUCTIONS, recipe_instruction):
+        raise Exception("foodhead recipe_instruction")
+    return recipe_instruction
+    
+###################_____VALIDATION FOR CREATING RECIPE_____#

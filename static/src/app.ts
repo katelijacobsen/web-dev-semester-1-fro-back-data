@@ -11,14 +11,14 @@ function addIngredientHTML(): string {
   return `
     <li class="ingredient-item">
       <div>
-        <label for="ingredient"></label>
+        <label for="recipe_ingridient"></label>
         <input
           type="text"
-          name="ingridient_name"
+          name="recipe_ingridient"
           placeholder="e.g. butter"
         />
-        <input type="text" name="ingredient_amount" placeholder="e.g. 170" />
-        <select name="ingredient_unit">
+        <input type="text" name="recipe_ingridient_amount" placeholder="e.g. 170" />
+        <select name="recipe_ingridient_unit">
           <option value="">unit</option>
           <option>g</option>
           <option>kg</option>
@@ -36,10 +36,10 @@ function addIngredientHTML(): string {
 
 function createStepHTML(): string {
   return `
-    <div class="drag-tool" aria-label="drag to reorder">DRAG ME</div>
+    <div class="drag-tool" aria-label="drag & drop">DRAG ME</div>
     <label class="step-label"></label>
     <textarea
-      name="instruction"
+      name="recipe_instruction"
       placeholder="Add Instruction here..."
     ></textarea>
     <div class="step-actions">

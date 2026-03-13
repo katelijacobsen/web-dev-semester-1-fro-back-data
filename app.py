@@ -237,11 +237,23 @@ def create_user():
 #######################################################
 
 
-@app.post('/api-create-recipie')
-def upload_file():
+@app.post('/api-create-recipe')
+def create_recipe():
     try:
-        post_title = request.form.get('post_title') 
-        post_description = request.form.get('post_description')
+        # DONE
+        recipe_title = config.validate_recipe_title()
+        recipe_description = config.validate_recipe_description()
+        recipe_servings = config.validation_recipe_servings()
+
+        # IN PROCESS
+        recipe_instructions = ["a", "b", "c"]
+        recipe_ingridients = ["salt", "pepper", "butter"]
+
+
+
+        # HARD CODED 
+        recipe_prep_time = 45
+        recipe_cook_time = 60
         
         
         file = request.files['recipe_file']
@@ -249,42 +261,73 @@ def upload_file():
         path = f"{UPLOAD_FOLDER }/{file_key}"
         file.save(path)
         
+
         #creating object
         post = {
-            'post_id': uuid.uuid4().hex,
+            'recipe_id': uuid.uuid4().hex,
             'user_id': session['user_id'], #dictionary w/key
-            'post_title': post_title,
-            'post_img_key': file_key,
-            'post_description': post_description,
-            'post_created_at': int(time.time())+3600
+            'recipe_title': recipe_title,
+            'recipe_description': recipe_description,
+            'recipe_ingridients': recipe_ingridients,
+            'recipe_instructions': recipe_instructions,
+            'recipe_servings': recipe_servings,
+            'recipe_prep_time': recipe_prep_time,
+            'recipe_cook_time': recipe_cook_time,
+            'recipe_img_key': file_key,
+            'recipe_created_at': int(time.time())+3600
         }
         
         db, cursor = config.db()
         q = """
-        INSERT INTO posts (
-            post_id,
+        INSERT INTO recipes (
+            recipe_id,
             user_id,
-            post_title,
-            post_img_key,
-            post_description,
-            post_created_at
-        ) VALUES (%s, %s, %s, %s, %s, %s)
+            recipe_title,
+            recipe_img_key,
+            recipe_description,
+            recipe_ingridients,
+            recipe_instructions,
+            recipe_prep_time,
+            recipe_cook_time,
+            recipe_servings,
+            recipe_created_at
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         
         cursor.execute(q, (
-            post["post_id"],
+            post["recipe_id"],
             post["user_id"],
-            post["post_title"],
-            post["post_img_key"],
-            post["post_description"],
-            post["post_created_at"]
+            post["recipe_title"],
+            post["recipe_img_key"],
+            post["recipe_description"],
+            post["recipe_ingridients"],
+            post["recipe_instructions"],
+            post["recipe_servings"],
+            post["recipe_created_at"]
         ))
         
         return render_template("index.html", post=post)
     
     except Exception as ex: 
         ic(ex)
-        return jsonify({"Msg": "server error", "error":str(ex)}), 500 
+        
+        if "foodhead_exception recipe_title" in str(ex):
+            tip = render_template("tip.html", status="error", message="recipe title invalid")
+            return f"""<browser mix-update="#tooltip">{tip}</browser>""", 400
+        
+
+        if "foodhead_exception recipe_servings" in str(ex):
+            tip = render_template("tip.html", status="error", message="recipe servings invalid")
+            return f"""<browser mix-update="#tooltip">{tip}</browser>""", 400
+
+        if "foodhead_exception recipe_instructions" in str(ex):
+            tip = render_template("tip.html", status="error", message="recipe instructions invalid")
+            return f"""<browser mix-update="#tooltip">{tip}</browser>""", 400
+
+
+
+        msg = str(ex) if ex.args else "System error"
+        return f"""<browser mix-update="#tooltip">{msg}</browser>""", 500 
     finally: 
         if 'cursor' in locals(): cursor.close()
         if 'db' in locals(): db.close()
