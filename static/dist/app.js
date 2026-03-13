@@ -11,7 +11,7 @@ function addIngredientHTML() {
           name="ingridient_name"
           placeholder="e.g. butter"
         />
-        <input type="text" name="ingredient_amount" placeholder="e.g. 170" />
+        <input type="text" name="ingridient_amount" placeholder="e.g. 170" />
         <select name="ingredient_unit">
           <option value="">unit</option>
           <option>g</option>

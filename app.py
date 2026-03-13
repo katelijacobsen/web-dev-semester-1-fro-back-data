@@ -240,101 +240,79 @@ def create_user():
 @app.post('/api-create-recipe')
 def create_recipe():
     try:
-        # DONE
         recipe_title = config.validate_recipe_title()
         recipe_description = config.validate_recipe_description()
         recipe_servings = config.validation_recipe_servings()
+        recipe_prep_time = request.form.get("recipe_prep_time")
+        recipe_cook_time = request.form.get("recipe_cook_time")
 
-        # IN PROCESS
-        recipe_instructions = ["a", "b", "c"]
-        recipe_ingridients = ["salt", "pepper", "butter"]
+        recipe_id = uuid.uuid4().hex
+        user_id = session.get('user_id')
+        if not user_id:
+            return redirect("/login")
 
-
-
-        # HARD CODED 
-        recipe_prep_time = 45
-        recipe_cook_time = 60
-        
-        
         file = request.files['recipe_file']
         file_key = f"{uuid.uuid4().hex}_{file.filename}"
-        path = f"{UPLOAD_FOLDER }/{file_key}"
-        file.save(path)
-        
+        path = f"{UPLOAD_FOLDER}/{file_key}"
 
-        #creating object
-        post = {
-            'recipe_id': uuid.uuid4().hex,
-            'user_id': session['user_id'], #dictionary w/key
-            'recipe_title': recipe_title,
-            'recipe_description': recipe_description,
-            'recipe_ingridients': recipe_ingridients,
-            'recipe_instructions': recipe_instructions,
-            'recipe_servings': recipe_servings,
-            'recipe_prep_time': recipe_prep_time,
-            'recipe_cook_time': recipe_cook_time,
-            'recipe_img_key': file_key,
-            'recipe_created_at': int(time.time())+3600
-        }
-        
         db, cursor = config.db()
+
+        # Insert recipe (no ingredients/instructions columns)
         q = """
         INSERT INTO recipes (
-            recipe_id,
-            user_id,
-            recipe_title,
-            recipe_img_key,
-            recipe_description,
-            recipe_ingridients,
-            recipe_instructions,
-            recipe_prep_time,
-            recipe_cook_time,
-            recipe_servings,
-            recipe_created_at
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            recipe_id, user_id, recipe_title, recipe_img_key,
+            recipe_description, recipe_prep_time, recipe_cook_time,
+            recipe_servings, recipe_created_at
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        
         cursor.execute(q, (
-            post["recipe_id"],
-            post["user_id"],
-            post["recipe_title"],
-            post["recipe_img_key"],
-            post["recipe_description"],
-            post["recipe_ingridients"],
-            post["recipe_instructions"],
-            post["recipe_cook_time"],
-            post["recipe_prep_time"],
-            post["recipe_servings"],
-            post["recipe_created_at"]
+            recipe_id, user_id, recipe_title, file_key,
+            recipe_description, recipe_prep_time, recipe_cook_time,
+            recipe_servings, int(time.time())
         ))
 
-        db.commit()        
-        return render_template("index.html", post=post)
-    
+        # Insert ingredients
+        ingridient_names   = request.form.getlist("ingridient_name")
+        ingridient_amounts = request.form.getlist("ingridient_amount")
+        ingridient_units   = request.form.getlist("ingredient_unit")
+
+        ic(ingridient_names)
+        ic(ingridient_amounts)
+        ic(ingridient_units)
+
+        for name, amount, unit in zip(ingridient_names, ingridient_amounts, ingridient_units):
+            ingridient_id = uuid.uuid4().hex
+            cursor.execute(
+                "INSERT INTO ingridients (ingridient_id, recipe_fk, ingridient_names, ingridient_amounts, ingridient_units) VALUES (%s, %s, %s, %s, %s)",
+                (ingridient_id, recipe_id, name.strip(), amount.strip(), unit.strip())
+            )
+
+        # Insert instructions
+        instructions = request.form.getlist("instructions")
+        for step_number, instruction in enumerate(instructions, start=1):
+            instruction_id = uuid.uuid4().hex
+            cursor.execute(
+                "INSERT INTO instructions (instruction_id, recipe_fk, instruction, instruction_step_number) VALUES (%s, %s, %s, %s)",
+                (instruction_id, recipe_id, instruction.strip(), step_number)
+            )
+            
+        ic(instructions)
+
+        db.commit()
+        # Save file only after successful DB commit
+        file.save(path)
+
+        return redirect(f"/")
+
     except Exception as ex:
         ic(ex)
-        
-        if "foodhead_exception recipe_title" in str(ex):
-            tip = render_template("tip.html", status="error", message="recipe title invalid")
-            return f"""<browser mix-update="#tooltip">{tip}</browser>""", 400
-        
-
-        if "foodhead_exception recipe_servings" in str(ex):
-            tip = render_template("tip.html", status="error", message="recipe servings invalid")
-            return f"""<browser mix-update="#tooltip">{tip}</browser>""", 400
-
-        if "foodhead_exception recipe_instructions" in str(ex):
-            tip = render_template("tip.html", status="error", message="recipe instructions invalid")
-            return f"""<browser mix-update="#tooltip">{tip}</browser>""", 400
+        return f"""<browser mix-update="#tip">Error: {str(ex)}</browser>""", 500
+    
 
 
-
-        msg = str(ex) if ex.args else "System error"
-        return f"""<browser mix-update="#tooltip">{msg}</browser>""", 500 
-    finally: 
+    finally:
         if 'cursor' in locals(): cursor.close()
         if 'db' in locals(): db.close()
-
 #######################################################
 
 @app.delete('/api-delete-recipe')

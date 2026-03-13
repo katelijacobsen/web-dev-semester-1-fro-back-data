@@ -3,13 +3,13 @@
 const instructionsList = document.querySelector<HTMLOListElement>(
   "#instructions-container",
 );
-const ingredientsList = document.querySelector<HTMLUListElement>(
-  "#ingredients-container",
+const ingridientsList = document.querySelector<HTMLUListElement>(
+  "#ingridients-container",
 );
 
-function addIngredientHTML(): string {
+function addingridientHTML(): string {
   return `
-    <li class="ingredient-item">
+    <li class="ingridient-item">
       <div>
         <label for="recipe_ingridient"></label>
         <input
@@ -17,7 +17,7 @@ function addIngredientHTML(): string {
           name="recipe_ingridient"
           placeholder="e.g. butter"
         />
-        <input type="text" name="recipe_ingridient_amount" placeholder="e.g. 170" />
+        <input type="text" name="ingridient_amount" placeholder="e.g. 170" />
         <select name="recipe_ingridient_unit">
           <option value="">unit</option>
           <option>g</option>
@@ -28,7 +28,7 @@ function addIngredientHTML(): string {
           <option>tsp</option>
           <option>tbsp</option>
         </select>
-        <button type="button" onclick="rmvIngredient(this)">Remove</button>
+        <button type="button" onclick="rmvingridient(this)">Remove</button>
       </div>
     </li>
   `;
@@ -36,10 +36,10 @@ function addIngredientHTML(): string {
 
 function createStepHTML(): string {
   return `
-    <div class="drag-tool" aria-label="drag & drop">DRAG ME</div>
+    <div id="instruction-step" class="drag-tool" aria-label="drag & drop">DRAG ME</div>
     <label class="step-label"></label>
     <textarea
-      name="recipe_instruction"
+      name="instructions"
       placeholder="Add Instruction here..."
     ></textarea>
     <div class="step-actions">
@@ -49,16 +49,16 @@ function createStepHTML(): string {
 }
 
 
-function addIngredient(): void {
+function addingridient(): void {
   const li = document.createElement("li");
-  li.innerHTML = addIngredientHTML();
-  ingredientsList?.appendChild(li);
+  li.innerHTML = addingridientHTML();
+  ingridientsList?.appendChild(li);
 }
 
 
-function rmvIngredient(btn: HTMLButtonElement): void {
-  if (ingredientsList && ingredientsList.children.length > 1) {
-    btn.closest(".ingredient-item")?.remove();
+function rmvingridient(btn: HTMLButtonElement): void {
+  if (ingridientsList && ingridientsList.children.length > 1) {
+    btn.closest(".ingridient-item")?.remove();
   }
 }
 
