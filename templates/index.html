@@ -9,4 +9,18 @@
 <p>Velkommen til platformen, log in eller sign up hvis du er ny</p>
 {% endif %}
 
+<section>
+  {% for recipe in recipes %}
+  <article>
+    <img src="/static/uploads/{{ recipe['recipe_img_key'] }}" alt="{{ recipe['recipe_title'] }}" />
+    <h2>{{ recipe['recipe_title'] }}</h2>
+    <p>{{ recipe['recipe_description'] }}</p>
+    <p>Prep: {{ recipe['recipe_prep_time'] }} min | Cook: {{ recipe['recipe_cook_time'] }} min | Serves: {{ recipe['recipe_servings'] }}</p>
+    <a href="/recipe/{{ recipe['recipe_id'] }}">View Recipe</a>
+  </article>
+  {% else %}
+    <p>No recipes yet. <a href="/create">Be the first to share one!</a></p>
+  {% endfor %}
+</section>
+
 {% endblock content %}

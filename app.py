@@ -23,8 +23,6 @@ app.config['MAX_CONTENT_LENGTH'] = 2 * 1000 * 1000
 Session(app) #what the hell was this used for again if we use session and not Session?
 
 
-#ic( int(time.time())+3600)
-
 @app.before_request
 def load_user():
     user_id = session.get("user_id")
@@ -39,14 +37,20 @@ def load_user():
         g.user = None
 
 ########################ROUTING#########################
-
+### INDEX ###
 @app.route("/")
 def index():
+    db, cursor = config.db()
+    cursor.execute("SELECT * FROM recipes ORDER BY recipe_created_at DESC")
+    recipes = cursor.fetchall()
+    cursor.close()
+    db.close()
+
     if g.user:
-        return render_template("index.html", user=g.user) #use this in base.html
-    return render_template("index.html")
+        return render_template("index.html", user=g.user, recipes=recipes)
+    return render_template("index.html", recipes=recipes)
 
-
+### SINGUP ###
 @app.get("/signup")
 def signup_post():
     try:
@@ -57,6 +61,7 @@ def signup_post():
         return "Haha whoops probably a type error. Have a nice day. Go touch some grass", 500
 
 
+### LOGIN ###
 @app.get("/login")
 def login():
     try:
@@ -68,6 +73,7 @@ def login():
         ic(ex)
         return "whoops" # of course "best case" scenario :^)
 
+### LOGOUT ###
 @app.route('/logout')
 def logout():
     try:
@@ -81,116 +87,58 @@ def logout():
 def create_post():
     return render_template("create.html")
 
+### SINGLE SITE RECIPE ###
+@app.route("/recipe/<recipe_id>")
+def view_recipe(recipe_id):
+    try:#Get to the db
+        db, cursor = config.db()
+
+        #execute & fetch one by getting the recipe and its ingridients & instructions
+        cursor.execute("SELECT * FROM recipes WHERE recipe_id = %s", (recipe_id,))
+        recipe = cursor.fetchone()
+
+        cursor.execute("SELECT * FROM ingridients WHERE recipe_fk = %s", (recipe_id,))
+        ingridients = cursor.fetchall()
+
+        cursor.execute("SELECT * FROM instructions WHERE recipe_fk = %s", (recipe_id,))
+        instructions = cursor.fetchall()
+
+    except Exception as ex:
+        ic(ex)
+    
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+    
+    return render_template("recipe.html", recipe=recipe, ingridients=ingridients, instructions=instructions)        
+
+### SITE FOR EDITING RECIPE 
+@app.route('/recipe/<recipe_id>/edit')
+def edit_recipe(recipe_id):
+    try:
+        pass
+        cursor, db = db.config()
+    except Exception as ex:
+        ic(ex)
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
+   
+    return render_template("edit.html")
+
 ########################ERROR HANDLER#########################
 
 #@app.errorhandler(404)
 #def page_not_found(error):
 #    return render_template("/"), 404
 
-#######################################################
+####################### APIs ##########################
 
-
-####################### LOGIN #########################
-
-@app.post("/api-login")
-def api_login():
-    try:
-        user_email = config.validate_user_email()
-        user_password = config.validate_user_password()
-        db, cursor = config.db()
-
-
-        q = "SELECT * FROM users WHERE user_email = %s"
-        
-        cursor.execute(q, (user_email,))
-        
-        user = cursor.fetchone()
-
-        
-        if not user: 
-            error_msg = "Invalid credentials 001"
-            tip = render_template("tip.html", status="error", msg=error_msg)
-            return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
-        
-        app.logger.info('expected = "%s", given = "%s" ________USER PASSWORD', user["user_password"], user_password)
-        if not check_password_hash(user["user_password"], user_password):
-            error_msg = "Invalid credentials 2"
-            tip = render_template("tip.html", status="error", msg=error_msg)
-            return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
-        
-        user.pop("user_password")
-        session["user_id"] = user["user_id"]
-        
-        return f"""<browser mix-redirect="/"></browser>"""    
-            
-    except Exception as ex: 
-        ic(ex)
-        
-        if "company_exception user_email" in str(ex):
-            error_msg = "Invalid credentials 02"
-            tip = render_template("tip.html", status="error", msg=error_msg)
-            return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
-        
-        
-        if "company_exception user_password" in str(ex):
-            error_msg = "Invalid credentials 02"
-            tip = render_template("tip.html", status="error", msg=error_msg)
-            return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
-            
-        
-        error_msg = "Invalid credentials"
-        tip = render_template("tip.html", status="error", msg=error_msg)
-        return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 500
-    finally:
-        if "cursor" in locals(): cursor.close()
-        if "db" in locals(): db.close()
-#######################################################
-# Checking if the I'm connected to the db
-@app.get("/users")
-def get_users():
-    q = "SELECT * FROM users"
-    db, cursor = config.db()
-    cursor.execute(q, ())
-    users = cursor.fetchall()
-    return jsonify(users)
-
-####################### SIGN UP #######################
-
-
-#######################################################
-
-@app.post("/api-check-user")
-def check_user(): 
-    try:
-        user_username = config.validate_user_username()
-        db, cursor = config.db()
-        
-        q = "SELECT * FROM users WHERE user_username = %s"
-        cursor.execute(q, (user_username,))
-        row = cursor.fetchone()
-        if not row:
-            return f"""<browser mix-update="span">Avaiable</browser>""" 
-        
-        return f"""<browser mix-update="span">Username or email is taken</browser>""" 
-    
-    except Exception as ex:
-        ic(ex)
-        if "-------error-------------- user_username" in str(ex):
-            return f"""<browser mix-update="span">Invalid username</browser>""", 400
-        return f"""<browser mix-update="span">System error</browser>""", 500
-    finally: 
-        if "cursor" in locals(): cursor.close()
-        if "db" in locals(): db.close() 
-
-#######################################################
-
-
-
-#######################################################
-
+## API FOR SIGN UP
 @app.post("/api-create-user")
 def create_user(): 
     try:
+        #VALIDATE DATA
         user_id = uuid.uuid4().hex
         user_username = config.validate_user_username()
         user_first_name = config.validate_user_first_name()
@@ -234,9 +182,61 @@ def create_user():
         if "cursor" in locals(): cursor.close()
         if "db" in locals(): db.close()
 
-#######################################################
+
+## API FOR LOGIN
+@app.post("/api-login")
+def api_login():
+    try:
+        user_email = config.validate_user_email()
+        user_password = config.validate_user_password()
+        db, cursor = config.db()
+
+        #query
+        q = "SELECT * FROM users WHERE user_email = %s"
+        
+        cursor.execute(q, (user_email,))
+        
+        user = cursor.fetchone()
+        
+        if not user: 
+            error_msg = "Invalid credentials 001"
+            tip = render_template("tip.html", status="error", msg=error_msg)
+            return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
+        
+        if not check_password_hash(user["user_password"], user_password):
+            error_msg = "Invalid credentials 2"
+            tip = render_template("tip.html", status="error", msg=error_msg)
+            return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
+        
+        user.pop("user_password")
+        session["user_id"] = user["user_id"]
+        
+        return f"""<browser mix-redirect="/"></browser>"""    
+            
+    except Exception as ex: 
+        ic(ex)
+        #Error handling
+        if "company_exception user_email" in str(ex):
+            error_msg = "Invalid credentials 02"
+            tip = render_template("tip.html", status="error", msg=error_msg)
+            return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
+        
+        
+        if "company_exception user_password" in str(ex):
+            error_msg = "Invalid credentials 02"
+            tip = render_template("tip.html", status="error", msg=error_msg)
+            return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
+            
+        
+        error_msg = "Invalid credentials"
+        tip = render_template("tip.html", status="error", msg=error_msg)
+        return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 500
+    finally:
+        if "cursor" in locals(): cursor.close()
+        if "db" in locals(): db.close()
 
 
+## API FOR CREATING RECIPE
 @app.post('/api-create-recipe')
 def create_recipe():
     try:
@@ -313,8 +313,9 @@ def create_recipe():
     finally:
         if 'cursor' in locals(): cursor.close()
         if 'db' in locals(): db.close()
-#######################################################
 
+
+## API FOR DELETING RECIPE
 @app.delete('/api-delete-recipe')
 def delete_post(recipe_id):
     try:
@@ -330,13 +331,59 @@ def delete_post(recipe_id):
         if 'db' in locals(): db.close()
 
 
-@app.patch('/')
-def update_recipe():
+## API FOR EDIT/UPDATE RECIPE
+@app.patch('/api-update-recipe/<recipe_id>')
+def update_recipe(recipe_id):
     try:
-        #TO DO VALIDATE SOME DATA
-        cursor, db = config.db()
-        #QUERY
-        q = ""
+        #before validating data we must be sure that the user i logged in
+        if not g.user: 
+            return redirect("/login")
+        
+        #TO DO VALIDATE SOME DATA        
+        recipe_title = config.validate_recipe_title()
+        recipe_description = config.validate_recipe_description()
+        recipe_servings = config.validation_recipe_servings()
+        recipe_prep_time = request.form.get("recipe_prep_time")
+        recipe_cook_time = request.form.get("recipe_cook_time")
+
+        cursor.execute("""
+            UPDATE recipes SET
+                recipe_title = %s,
+                recipe_description = %s,
+                recipe_servings = %s,
+                recipe_prep_time = %s,
+                recipe_cook_time = %s
+            WHERE recipe_id = %s AND user_id = %s
+        """, (recipe_title, recipe_description, recipe_servings,
+              recipe_prep_time, recipe_cook_time,
+              recipe_id, g.user['user_id']))
+        db, cursor = config.db()
+
+                       # Replace ingredients
+        cursor.execute("DELETE FROM ingridients WHERE recipe_fk = %s", (recipe_id,))
+        for name, amount, unit in zip(
+            request.form.getlist("ingridient_name"),
+            request.form.getlist("ingridient_amount"),
+            request.form.getlist("ingredient_unit")
+        ):
+            cursor.execute(
+                "INSERT INTO ingridients (ingridient_id, recipe_fk, ingridient_names, ingridient_amounts, ingridient_units) VALUES (%s, %s, %s, %s, %s)",
+                (uuid.uuid4().hex, recipe_id, name.strip(), amount.strip(), unit.strip())
+            )
+
+        # Replace instructions
+        cursor.execute("DELETE FROM instructions WHERE recipe_fk = %s", (recipe_id,))
+        for step_number, instruction in enumerate(request.form.getlist("instruction"), start=1):
+            cursor.execute(
+                "INSERT INTO instructions (instruction_id, recipe_fk, instruction, instruction_step_number) VALUES (%s, %s, %s, %s)",
+                (uuid.uuid4().hex, recipe_id, instruction.strip(), step_number)
+            )
+
+        db.commit()
+        return f"""<browser mix-redirect="/recipe/{recipe_id}"></browser>"""
+ 
+
+
     except Exception as ex: 
         ic(ex)
         #HANDLING ERRORRTYPES 
