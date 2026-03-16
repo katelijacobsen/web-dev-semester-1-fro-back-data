@@ -171,7 +171,7 @@ def create_user():
         
         
         if "Duplicate entry" in str(ex) and "user_email" in str(ex):
-            return f"""<browser mix-update="#email-error">Email already taken</browser>""", 400
+            return f"""<browser mix-update="#email-error"> <img alt="error-icon" src="/static/icons/warning_icon.svg"/> Email already taken</browser>""", 400
         
         
         msg = str(ex) if ex.args else "System error"
@@ -199,12 +199,12 @@ def api_login():
         user = cursor.fetchone()
         
         if not user: 
-            error_msg = "Invalid credentials 001"
+            error_msg = "Invalid credentials"
             tip = render_template("tip.html", status="error", msg=error_msg)
             return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
         
         if not check_password_hash(user["user_password"], user_password):
-            error_msg = "Invalid credentials 2"
+            error_msg = "Invalid credentials"
             tip = render_template("tip.html", status="error", msg=error_msg)
             return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
         
@@ -217,13 +217,13 @@ def api_login():
         ic(ex)
         #Error handling
         if "company_exception user_email" in str(ex):
-            error_msg = "Invalid credentials 02"
+            error_msg = "Invalid credentials"
             tip = render_template("tip.html", status="error", msg=error_msg)
             return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
         
         
         if "company_exception user_password" in str(ex):
-            error_msg = "Invalid credentials 02"
+            error_msg = "Invalid credentials"
             tip = render_template("tip.html", status="error", msg=error_msg)
             return f"""<browser mix-after-begin="#tip">{tip}</browser>""", 400
             

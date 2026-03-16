@@ -1,25 +1,44 @@
-{% extends 'base.html' %}
-{% block header %} <h1>{% block title%} index {% endblock title %}</h1> {% endblock header %}
-
-{% block content%}
-
-{% if g.user %}
-<p>Hej med dig, {{ g.user['user_username']}}</p>
+{% extends 'base.html' %} {% block header %}
+<h1>{% block title%} index {% endblock title %}</h1>
+{% endblock header %} {% block content%} {% if g.user %}
+<h1>Hej med dig, {{ g.user['user_username']}}</h1>
 {% else %}
 <p>Velkommen til platformen, log in eller sign up hvis du er ny</p>
 {% endif %}
 
-<section>
+<section class="page-sections">
   {% for recipe in recipes %}
-  <article>
-    <img src="/static/uploads/{{ recipe['recipe_img_key'] }}" alt="{{ recipe['recipe_title'] }}" />
+  <article class="recipe-card">
+    <img
+      src="/static/uploads/{{ recipe['recipe_img_key'] }}"
+      alt="{{ recipe['recipe_title'] }}"
+    />
     <h2>{{ recipe['recipe_title'] }}</h2>
     <p>{{ recipe['recipe_description'] }}</p>
-    <p>Prep: {{ recipe['recipe_prep_time'] }} min | Cook: {{ recipe['recipe_cook_time'] }} min | Serves: {{ recipe['recipe_servings'] }}</p>
+    <section class="recipe-overview">
+      <div>
+        <img alt="clock" src="/static/icons/clock-icon.svg" />
+        <p>Prep time</p>
+        <p>{{ recipe['recipe_prep_time'] }} min</p>
+      </div>
+      <div>
+        <img alt="chef hat" src="/static/icons/chef-hat-icon.svg" />
+        <p>Cook time</p>
+        <p>{{ recipe['recipe_cook_time'] }} min</p>
+      </div>
+      <div>
+        <img
+          alt="plate with knife and fork"
+          src="/static/icons/servings-icon.svg"
+        />
+        <p>Servings</p>
+        <p>{{ recipe['recipe_servings'] }}</p>
+      </div>
+    </section>
     <a href="/recipe/{{ recipe['recipe_id'] }}">View Recipe</a>
   </article>
   {% else %}
-    <p>No recipes yet. <a href="/create">Be the first to share one!</a></p>
+  <p>No recipes yet. <a href="/create">Be the first to share one!</a></p>
   {% endfor %}
 </section>
 

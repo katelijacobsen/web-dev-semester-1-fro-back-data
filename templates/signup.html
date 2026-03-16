@@ -1,7 +1,7 @@
 {% extends 'base.html' %} {% block header %}
 <h1>{% block title%} Sign Up {% endblock title %}</h1>
 {% endblock header %} {% block content%}
-<form mix-post="/api-create-user" id="signup">
+<form mix-post="/api-create-user" id="signup" class="signup">
   <legend>Sign up here & become a foodhead</legend>
 
   <div class="field">
@@ -97,7 +97,7 @@
     >
   </div>
 
-  <button>Sign up</button>
+  <button class="primary-btn">Sign up</button>
   <div id="tip"></div>
 </form>
 {% endblock content%}

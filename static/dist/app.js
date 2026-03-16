@@ -29,14 +29,20 @@ function addingridientHTML() {
 }
 function createStepHTML() {
     return `
-    <div id="instruction-step" class="drag-tool" aria-label="drag & drop">DRAG ME</div>
-    <label class="step-label"></label>
-    <textarea
-      name="instruction"
-      placeholder="Add Instruction here..."
-    ></textarea>
-    <div class="step-actions">
-      <button type="button" class="btn-rmv" onclick="rmvStep(this)">Remove</button>
+    <div class="drag-wrapper">
+      <div id="instruction-step" class="drag-tool" aria-label="drag & drop">
+        <img  class="drag-icon" alt="six dots that make it look dragable" src="/static/icons/drag_icon.svg"/>
+        <label class="step-label" style="display: none;"></label>
+        <textarea
+        name="instruction"
+        placeholder="Add Instruction here..."
+        ></textarea>
+      </div>
+      <div class="step-actions">
+        <button type="button" class="btn-rmv" onclick="rmvStep(this)">
+          <img alt="plus-sign" src="/static/icons/delete_icon.svg" />
+        </button>
+      </div>
     </div>
   `;
 }

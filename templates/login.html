@@ -1,20 +1,20 @@
-{% extends 'base.html' %}
-{% block header %} <h1>{% block title%} Log in {% endblock title %}</h1> {% endblock header %}
-
-{% block content %}
-<form mix-post="/api-login" id="signup">
+{% extends 'base.html' %} {% block header %}
+<h1>{% block title%} Log in {% endblock title %}</h1>
+{% endblock header %} {% block content %}
+<form mix-post="/api-login" id="login" class="signup">
   {% if error %}
   <span>{{error}}</span>
   {% endif %}
-  <label for="email">
-    Email
+
+  <div class="field">
+    <label for="email"> Email </label>
     <input type="email" name="user_email" id="user_email" required />
-  </label>
-  <label for="password">
-    Password
+  </div>
+  <div class="field">
+    <label for="password"> Password </label>
     <input type="password" name="user_password" id="user_password" required />
-  </label>
+  </div>
+  <button type="submit" class="primary-btn">Login</button>
   <span id="tip" class="error-msg" aria-live="polite">{{ msg }}</span>
-  <button type="submit">Login</button>
 </form>
 {% endblock content %}

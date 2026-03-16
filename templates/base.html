@@ -15,38 +15,63 @@
         {% if g.user %}
         <ul>
           <li>
-            <a href="/">Home</a>
+            <a href="/">
+              <img
+                class="logo"
+                alt="boy with head full of spaghetti and meatballs"
+                src="/static/imgs/foodhead-logo.png"
+              />
+            </a>
           </li>
           <li>
-            <a href="/create">Create Post</a>
+            <a class="primary-btn" href="/create"
+              >Create Recipe
+              <img
+                class="create-icon"
+                alt="cookbook with plus icon"
+                src="/static/icons/create-icon.svg"
+            /></a>
           </li>
-          <li>
+          <li class="nav-auth-group">
             <span>{{ g.user['user_username']}}</span>
-          </li>
-          <li>
-            <a class="logout-btn" href="logout"> Log Out </a>
+            <a class="logout-btn" href="logout">
+              Logout
+              <img alt="login-icon" src="/static/icons/logout_icon.svg" />
+            </a>
           </li>
         </ul>
         {% else %}
         <ul>
           <li>
-            <a href="/">Home</a>
+            <a href="/">
+              <img
+                class="logo"
+                alt="boy with head full of spaghetti and meatballs"
+                src="/static/imgs/foodhead-logo.png"
+              />
+            </a>
           </li>
-          <li>
-            <a href="login">Login</a>
-          </li>
-          <li>
-            <a href="signup">Sign up</a>
+          <li class="nav-auth-group">
+            <a class="primary-btn" href="login">
+              Login <img alt="login-icon" src="/static/icons/login_icon.svg" />
+            </a>
+            <a class="secondary-btn" href="signup">Sign up</a>
           </li>
         </ul>
         {% endif %}
       </nav>
     </header>
-
-    {% block content %}{% endblock content %}
-
+    <main>{% block content %}{% endblock content %}</main>
     <footer>
-      <h4>FOOTER TEST</h4>
+      <a href="/">
+        <img
+          class="logo"
+          alt="boy with head full of spaghetti and meatballs"
+          src="/static/imgs/spicy-foodhead.png"
+        />
+      </a>
+      <p>Made by <strong>Katja M.</strong></p>
+      <p>Web Development · 1st Semester · Erhvervsakademi København 2026</p>
     </footer>
     <script src="/static/mixhtml.js"></script>
   </body>
