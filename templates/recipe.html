@@ -1,36 +1,42 @@
-{% extends 'base.html' %}
-{% block content%}
+{% extends 'base.html' %} {% block content%}
 
-<article>
-    <img src="" alt=""/>
-<h1>{{ recipe['recipe_title'] }}</h1>
+<article class="recipe-page">
 
-<h2>Description</h2>
-<p>{{ recipe['recipe_description'] }}</p>
+  <img
+    class="recipe-hero"
+    src="/static/uploads/{{ recipe['recipe_img_key'] }}"
+    alt="{{ recipe['recipe_title'] }}"
+  />
 
+  <h1 class="recipe-title">{{ recipe['recipe_title'] }}</h1>
 
-<h2>Ingridients</h2>
-{% for ingridient in ingridients %}
-<p>{{ ingridient['ingridient_amounts'] }}</p>
-<p>{{ ingridient['ingridient_units'] }}</p>
-<p>{{ ingridient['ingridient_names'] }}</p>
-{% endfor %}
+  <h2>Description</h2>
+  <p class="recipe-description">{{ recipe['recipe_description'] }}</p>
 
+  <h2>Ingredients</h2>
+  <ul class="ingredients-list">
+    {% for ingredient in ingridients %}
+    <li class="ingredient-row">
+      <span class="ingredient-amount">{{ ingredient['ingridient_amounts'] }}</span>
+      <span class="ingredient-unit">{{ ingredient['ingridient_units'] }}</span>
+      <span class="ingredient-name">{{ ingredient['ingridient_names'] }}</span>
+    </li>
+    {% endfor %}
+  </ul>
 
-<h2>Instructions</h2>
-<ol>
-{% for step in instructions %}
+  <h2>Instructions</h2>
+  <ol class="instructions-list">
+    {% for step in instructions %}
+    <li><span>{{ step['step_instructions'] }}</span></li>
+    {% endfor %}
+  </ol>
 
-<li>{{ instructions['step_instructions'] }}</li>
-
-{% endfor %}
-</ol>
-{% if g.user and g.user['user_id'] == recipe['user_id'] %}
-
-<a href="/recipe/{{ recipe['recipe_id'] }}/edit">Edit Recipe</a>
-{% endif %}
-
+  {% if g.user and g.user['user_id'] == recipe['user_id'] %}
+  <a class="primary-btn" href="/recipe/{{ recipe['recipe_id'] }}/edit">
+    Change Recipe
+  </a>
+  {% endif %}
 
 </article>
 
-{% endblock content%}
+{% endblock content %}
